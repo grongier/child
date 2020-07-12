@@ -298,10 +298,12 @@ OptTSOutput." );
       //----------------FLOODPLAIN---------------------------------
       if( optFloodplainDep )
 	  {
-	     if( floodplain->OptControlMainChan() )
+	     if( floodplain->OptControlMainChan() ){ // GR
 	        floodplain->UpdateMainChannelHeight( time.getCurrentTime(),
 						 strmNet.getInletNodePtrNC() );
-	        std::cout << "UpdateChannelHeight::Done..\n";
+            if(0) //DEBUG // GR
+	          std::cout << "UpdateChannelHeight::Done..\n";
+         }
 
 	     if( optStratGrid ){
 	        stratGrid->UpdateStratGrid(tStratGrid::k3,time.getCurrentTime());
@@ -310,7 +312,8 @@ OptTSOutput." );
 	  floodplain->DepositOverbank( storm.getRainrate(),
 				       storm.getStormDuration(),
 				       time.getCurrentTime() );
-	  std::cout << "tFloodplain::Done..\n";
+      if(0) //DEBUG // GR
+	    std::cout << "tFloodplain::Done..\n";
 
 	  if( optStratGrid ){
 	    stratGrid->UpdateStratGrid(tStratGrid::k4,time.getCurrentTime());

@@ -21,6 +21,8 @@
 
 #include "ParamMesh_t.h"
 
+#define kDebug 1 // GR added this to control debugging
+
 /***************************************************************************\
  **  Templated global functions used by tMesh here
  \***************************************************************************/
@@ -360,7 +362,7 @@ MakeLayersFromInputData( const tInputFile &infile )
       if( time >= intime ) righttime = 1;
     }
   }
-  if(1) //DEBUG
+  if(kDebug) //DEBUG // GR
     std::cout<<"MakeLayersFromInputData: nnodes before="<<nnodes<<std::endl;
   int temp_nintnodes;  // Temporary variable used to read number of interior nodes
   if( !( layerinfile.eof() ) ) layerinfile >> temp_nintnodes;
@@ -369,7 +371,7 @@ MakeLayersFromInputData( const tInputFile &infile )
     std::cerr << "Couldn't find specified input time in layer file" << std::endl;
     ReportFatalError( "Input error" );
   }
-  if(1) //DEBUG
+  if(kDebug) //DEBUG // GR
     std::cout<<"nnodes after="<<nnodes<<std::endl;
   
   tLayer layhelp;
@@ -596,7 +598,7 @@ MakeMeshFromInputData( const tInputFile &infile )
   nnodes = input.x.getSize();
   nedges = input.orgid.getSize();
   ntri = input.p0.getSize();
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "nnodes, nedges, ntri: "
 	  << nnodes << " " << nedges << " " << ntri << std::endl;
   assert( nnodes > 0 );
@@ -2897,7 +2899,7 @@ ConvertToOpenBoundary( nodeListNode_t *listNode )
       // reset boundary flags (must be done after moving in list):
       ce->setFlowAllowed( finalBound );
       ce->getComplementEdge()->setFlowAllowed( finalBound );
-      if(1) //DEBUG
+      if(kDebug) //DEBUG // GR
         if( edgeList.getLastActive()->getDataPtr()->FlowAllowed() 
            == tEdge::kFlowNotAllowed )
 	      {
@@ -3049,7 +3051,7 @@ CheckMeshConsistency( bool boundaryCheckFlag /* default: true */)
   if (!runCheckMeshConsistency)
     return;
   
-  if(1) std::cout << "CheckMeshConsistency() ...\n";
+  if(kDebug) std::cout << "CheckMeshConsistency() ...\n"; // GR
   
   nodeListIter_t nodIter( nodeList );
   edgeListIter_t edgIter( edgeList );
@@ -3286,7 +3288,7 @@ CheckMeshConsistency( bool boundaryCheckFlag /* default: true */)
             std::cerr << "TRIANGLE #" << ct->getID()
             << ": flip test failed for edge opposite to vertex "
             << cn->getID() << ".\n";
-            if(1) {
+            if(kDebug) { // GR
               cn->TellAll();
               ct->TellAll();
             }
@@ -3530,7 +3532,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   tSubNode *node = nodPtr->getDataPtrNC();
   tBoundary_t deleted_node_boundary_status = node->getBoundaryFlag();
   
-#if 1
+#if 0
   // Quintijn & Arnaud's debug code
   if ( !allowMobileDeletion && /*node->isMobile()*/ node->Meanders() ) {
     std::cout << "YYYYYY DeleteNode()in tMesh: About to delete a Meandering node: "
@@ -3539,7 +3541,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   }
 #endif
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
   {
     std::cout << "DeleteNode: " << node->getID() << " at " << node->getX() << " "
 	  << node->getY() << " " << node->getZ() << std::endl;
@@ -3560,7 +3562,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   // extricate node from mesh and get list of its neighbors:
   if( !( ExtricateNode( node, nbrList ) ) ) return 0;
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
   {
     int nactive = 0, ntotalnodes = 0;
     nodeListIter_t nodIter( nodeList );
@@ -3586,7 +3588,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
     nodeList.removeFromFront( nodeVal );
   }
   
-  if(1) 
+  if(kDebug) // GR
   {
     std::cout << "Removed node " << nodeVal.getID() << " at x, y "
       << nodeVal.getX() << ", " << nodeVal.getY() << "; " << std::endl;
@@ -3604,7 +3606,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   nedges = edgeList.getSize();
   ntri = triList.getSize();
   
-  if (1) { //DEBUG
+  if (kDebug) { //DEBUG // GR
     std::cout << "nn " << nnodes << "  ne " << nedges << "  nt " << ntri << std::endl;
     tPtrListIter< tSubNode > nbrIter( nbrList );
     std::cout << "leaving hole defined by \n"
@@ -3637,7 +3639,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   //reset node id's
   ResetNodeIDIfNecessary();
   
-  if (1) { //DEBUG
+  if (kDebug) { //DEBUG // GR
     std::cout << "Mesh repaired" << std::endl;
     nodeListIter_t nodIter( nodeList );
     tSubNode *cn;
@@ -3686,13 +3688,13 @@ template< class tSubNode >
 int tMesh< tSubNode >::
 ExtricateNode( tSubNode *node, tPtrList< tSubNode > &nbrList )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "ExtricateNode: " << node->getID() << std::endl;
   tSpkIter spokIter( node );
   tEdge *ce;
   tSubNode *nbrPtr;
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
   {
     int nactive = 0, ntotalnodes = 0;
     nodeListIter_t nodIter( nodeList );
@@ -3719,7 +3721,7 @@ ExtricateNode( tSubNode *node, tPtrList< tSubNode > &nbrList )
       nodeList.moveToBack( nbrPtr );
       nbrPtr->ConvertToClosedBoundary();
     }
-    if (1) //DEBUG
+    if (kDebug) //DEBUG // GR
     {
       int nactive = 0, ntotalnodes = 0;
       nodeListIter_t nodIter( nodeList );
@@ -4087,7 +4089,7 @@ template< class tSubNode >
 tTriangle *tMesh< tSubNode >::
 TriWithEdgePtr( tEdge *edgPtr ) const
 {
-  if(1) std::cout << "tMesh::TriWithEdgePtr\n";
+  if(kDebug) std::cout << "tMesh::TriWithEdgePtr\n"; // GR
   assert( edgPtr != 0 );
   return edgPtr->TriWithEdgePtr();
 }
@@ -4232,7 +4234,7 @@ template< class tSubNode >
 int tMesh< tSubNode >::
 RepairMesh( tPtrList< tSubNode > &nbrList )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "RepairMesh: " << std::endl;
   if( nbrList.getSize() < 3 ) return 0;
   nbrList.makeCircular();
@@ -4268,11 +4270,11 @@ RepairMesh( tPtrList< tSubNode > &nbrList )
     //n_iterations++;
     //if( n_iterations > max_iterations )
     //ReportFatalError( "Too many iterations in RepairMesh()" );
-    if(1) std::cout << "in loop, nbr size = " << nbrList.getSize() << std::endl;
+    if(kDebug) std::cout << "in loop, nbr size = " << nbrList.getSize() << std::endl; // GR
     //Xflowflag = 1;  // PURPOSE??
     if( Next3Delaunay( nbrList, nbrIter ) ) //checks for ccw and Del.
     {
-      if(1) std::cout << "found 3 Delaun!\n";
+      if(kDebug) std::cout << "found 3 Delaun!\n"; // GR
       ret = AddEdgeAndMakeTriangle( nbrList, nbrIter );
       assert( ret );
       //remove "closed off" pt
@@ -4292,7 +4294,7 @@ RepairMesh( tPtrList< tSubNode > &nbrList )
   // Determine whether we need to call MakeTriangle or AddEdgeAndMakeTriangle. 
   // We only need to call the latter if the "hole" in the mesh is on the edge
   // and as a result there is a missing edge between two of the remaining points.
-  if(1) std::cout << "Checking whether we need to add a new edge...\n";
+  if(kDebug) std::cout << "Checking whether we need to add a new edge...\n"; // GR
   bool new_edge_needed = false;    // assume we don't need to add an edge unless proven otherwise
   tSubNode *cn = nbrIter.FirstP(); // start w/ first node on list of 3
   tSubNode *next_node_ccw = nbrIter.NextP();  // next one counter-clockwise
@@ -4301,7 +4303,7 @@ RepairMesh( tPtrList< tSubNode > &nbrList )
     tEdge *ce = cn->EdgToNod( next_node_ccw );  // find the edge, if any, connecting these
     if( ce==0 )
     {
-      if(1) std::cout << "aha, there's no edge from node " << cn->getID() << " to node " << next_node_ccw->getID() << std::endl;
+      if(kDebug) std::cout << "aha, there's no edge from node " << cn->getID() << " to node " << next_node_ccw->getID() << std::endl; // GR
       new_edge_needed = true;
       ret = AddEdgeAndMakeTriangle( nbrList, nbrIter );
       break;
@@ -4312,7 +4314,7 @@ RepairMesh( tPtrList< tSubNode > &nbrList )
   
   if( !new_edge_needed )
   {
-    if(1) std::cout << "all edges seem to be present and accounted for\n";
+    if(kDebug) std::cout << "all edges seem to be present and accounted for\n"; // GR
     ret = MakeTriangle( nbrList, nbrIter );             //make final triangle
   }
                                                              //    if( !ret )
@@ -4472,7 +4474,7 @@ int tMesh< tSubNode >::
 AddEdge( tSubNode *node1, tSubNode *node2, tSubNode const *node3 )
 {
   assert( node1 != 0 && node2 != 0 && node3 != 0 );
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddEdge"
 	  << "between nodes " << node1->getID()
 	  << " and " << node2->getID() << " w/ ref to node "
@@ -4579,7 +4581,7 @@ AddEdge( tSubNode *node1, tSubNode *node2, tSubNode const *node3 )
   // Reset edge id's
   ResetEdgeIDIfNecessary();
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddEdge() done\n" << std::flush;
   return 1;
 }
@@ -4601,7 +4603,7 @@ template< class tSubNode >
 int tMesh< tSubNode >::
 AddEdgeAtMeshBoundary( tSubNode *a, tSubNode *b, tSubNode *c, tSubNode *d )
 {
-  if(1)
+  if(kDebug) // GR
   {
     std::cout << "AddEdgeAtMeshBoundary here, about to add a pair of edges ";
     std::cout << "between nodes " << b->getPermID() << " and " << c->getPermID();
@@ -4688,7 +4690,7 @@ AddEdgeAtMeshBoundary( tSubNode *a, tSubNode *b, tSubNode *c, tSubNode *d )
   // Reset edge id's
   ResetEdgeIDIfNecessary();
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddEdge() done\n" << std::flush;
   return 1;
 }
@@ -4717,7 +4719,7 @@ int tMesh< tSubNode >::
 AddEdgeAndMakeTriangle( tPtrList< tSubNode > & /*nbrList*/,
                        tPtrListIter< tSubNode > &nbrIter )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddEdgeAndMakeTriangle 1" << std::endl;
   tSubNode *cn, *cnn, *cnnn;
   cn = nbrIter.DatPtr();
@@ -4731,11 +4733,11 @@ template< class tSubNode >
 int tMesh< tSubNode >::
 AddEdgeAndMakeTriangle( tSubNode* cn, tSubNode* cnn, tSubNode* cnnn )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddEdgeAndMakeTriangle 2" << std::endl;
   if( !AddEdge( cnnn, cn, cnn ) ) return 0;
   if( !MakeTriangle( cn, cnn, cnnn ) ) return 0;
-  if(1) std::cout << "Done with AddEdgeAndMakeTriangle\n";
+  if(kDebug) std::cout << "Done with AddEdgeAndMakeTriangle\n"; // GR
   return 1;
 }
 
@@ -4767,7 +4769,7 @@ int tMesh< tSubNode >::
 MakeTriangle( tPtrList< tSubNode > const &nbrList,
              tPtrListIter< tSubNode > &nbrIter )
 {
-  if(1) std::cout << "MakeTriangle 1\n";
+  if(kDebug) std::cout << "MakeTriangle 1\n"; // GR
   assert( nbrList.getSize() == 3 );
   tSubNode *cn, *cnn, *cnnn;
   cn = nbrIter.FirstP();      // cn, cnn, and cnnn are the 3 nodes in the tri
@@ -4784,7 +4786,7 @@ MakeTriangle( tSubNode *cn, tSubNode *cnn, tSubNode *cnnn )
   assert( cn != 0 && cnn != 0 && cnnn != 0 );
   assert( cn != cnn && cn != cnnn && cnn != cnnn );
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "MakeTriangle 2" << std::endl;
   const tArray< double > p0( cn->get2DCoords() ), p1( cnn->get2DCoords() ),
   p2( cnnn->get2DCoords() );
@@ -4829,7 +4831,7 @@ MakeTriangle( tSubNode *cn, tSubNode *cnn, tSubNode *cnnn )
   {
     // Find edge ce that connects p(j)->p(j+1)
     tEdge *ce = ct->pPtr(j)->EdgToNod( ct->pPtr( (j+1)%3 ) );
-    if(1) std::cout << "in loop j=" << j << " and ce=" << ce << std::endl;
+    if(kDebug) std::cout << "in loop j=" << j << " and ce=" << ce << std::endl; // GR
     
     if( nbrtriPtr != 0 && TriWithEdgePtr( ce ) == nbrtriPtr )
     {
@@ -4840,7 +4842,7 @@ MakeTriangle( tSubNode *cn, tSubNode *cnn, tSubNode *cnnn )
     
     // Find the triangle, if any, that shares (points to) this edge
     // and assign it as the neighbor triangle t((j+2)%3).
-    if(1) std::cout << "In MakeTriangle(2) calling TriWithEdgePtr for edge " << ce << std::endl;
+    if(kDebug) std::cout << "In MakeTriangle(2) calling TriWithEdgePtr for edge " << ce << std::endl; // GR
     nbrtriPtr = TriWithEdgePtr( ce );
     
     ct->setTPtr( (j+2)%3, nbrtriPtr );      //set tri TRI ptr (j+2)%3
@@ -4875,7 +4877,7 @@ MakeTriangle( tSubNode *cn, tSubNode *cnn, tSubNode *cnnn )
   //we have active and inactive members), but I'm sure it doesn't hurt; better safe
   //than sorry...
   ResetTriangleIDIfNecessary();
-  if(1) std::cout << "End of MakeTriangle 2\n";
+  if(kDebug) std::cout << "End of MakeTriangle 2\n"; // GR
   return 1;
 }
 
@@ -4914,7 +4916,7 @@ AddNode( tSubNode &nodeRef, kUpdateMesh_t updatemesh, double time,
 {
   const tArray< double > xyz( nodeRef.get3DCoords() );
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddNode at " << xyz[0] << ", " << xyz[1]
 	  << ", " << xyz[2] << " time "<<time<<std::endl;
   
@@ -4926,12 +4928,12 @@ AddNode( tSubNode &nodeRef, kUpdateMesh_t updatemesh, double time,
   nodeRef.setPermID( node_ID_generator.getNextID() );
   miNextPermNodeID++;
   
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "call InsertNode" << std::endl;
   tSubNode* newNodePtr = InsertNode(&nodeRef, time);
   if(newNodePtr == 0)
     return 0;
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "call CheckTrianglesAt" << std::endl;
   if( flip == kFlip &&  xyz.getSize() == 3 )
     CheckTrianglesAt( newNodePtr, time );
@@ -5041,7 +5043,7 @@ MakeDelaunay( tPtrList< tTriangle > &triPtrList, double time )
             if( !NonFlippableEdgeIter.Get( flowEdgeToFlip ) ){
               NonFlippableEdge.insertAtBack(flowEdgeToFlip);
               
-              if (0) //DEBUG
+              if (kDebug) //DEBUG // GR
                 std::cerr << "MakeDelaunay(): flip could not been done"
                 " between node " << at->pPtr((i+1)%3)->getID()
                 << " and node " << at->pPtr((i+2)%3)->getID() << "."
@@ -5133,7 +5135,7 @@ template< class tSubNode >
 tSubNode * tMesh< tSubNode >::
 InsertNode( tSubNode* newNodePtr, double time )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "tMesh::InsertNode()" << std::endl;
   
   tTriangle *tri = LocateTriangle( newNodePtr->getX(), newNodePtr->getY() );
@@ -5147,7 +5149,7 @@ InsertNode( tSubNode* newNodePtr, double time )
     return 0;
   }
 
-  if(1) //DEBUG
+  if (kDebug) //DEBUG // GR
   {
     for( int i=0; i<3; i++ )
     {
@@ -5260,7 +5262,7 @@ template< class tSubNode >
 tSubNode* tMesh< tSubNode >::
 AttachNode( tSubNode* cn, tTriangle* tri )
 {
-  if(1) std::cout << "AttachNode()\n";
+  if(kDebug) std::cout << "AttachNode()\n"; // GR
   
   assert( tri != 0 && cn != 0 );
   int i;
@@ -5296,13 +5298,13 @@ AttachNode( tSubNode* cn, tTriangle* tri )
                           // If we need to access new coords:
                           //size of xyz is basically the flag; the 4th element is never used o.w.
   {
-    if(1) std::cout << "   in triangle w/ vtcs. at " << p3[0] << " " << p3[1] << "; "
-         << p1[0] << " " << p1[1] << "; " << p4[0] << " " << p4[1] << std::endl;
+    if(kDebug) std::cout << "   in triangle w/ vtcs. at " << p3[0] << " " << p3[1] << "; "
+         << p1[0] << " " << p1[1] << "; " << p4[0] << " " << p4[1] << std::endl; // GR
     if( !PointsCCW( p3, p1, p2 ) ||
        !PointsCCW( p2, p1, p4 ) ||
        !PointsCCW( p2, p4, p3 ) )
     {
-      std::cout << "new tri not CCW" << std::endl;
+      if(kDebug) std::cout << "new tri not CCW" << std::endl; // GR
       if( Orientation( p3, p1, p2 ) == 0 ) colinearedg = 1;
       if( Orientation( p2, p1, p4 ) == 0 ) colinearedg = 2;
       if( Orientation( p2, p4, p3 ) == 0 ) colinearedg = 0;
@@ -5310,7 +5312,7 @@ AttachNode( tSubNode* cn, tTriangle* tri )
   }
   else
   {
-    if(1) std::cout << "In ELSE clause ...\n";
+    if(kDebug) std::cout << "In ELSE clause ...\n"; // GR
     // use virtual function that will return new coords for nodes
     p1 = node1->FuturePosn();
     p2 = node2->FuturePosn();
@@ -5319,7 +5321,9 @@ AttachNode( tSubNode* cn, tTriangle* tri )
     if( !PointsCCW( p3, p1, p2 ) ||
        !PointsCCW( p2, p1, p4 ) ||
        !PointsCCW( p2, p4, p3 ) )
-      std::cout << "new tri not CCW" << std::endl;
+    {
+        if(kDebug) std::cout << "new tri not CCW" << std::endl; // GR
+    }
   }
   
   if( colinearedg < 0 ) {
@@ -5334,7 +5338,7 @@ AttachNode( tSubNode* cn, tTriangle* tri )
     // ABN and edge pair AN. AEMT is called again to create tri NBC and edge
     // pair CN. With all the edge pairs created, it remains only to call
     // MakeTriangle to create tri NCA.
-    if(1) std::cout << "calling AE, AEMT, AEMT, and MT\n" << std::flush;
+    if(kDebug) std::cout << "calling AE, AEMT, AEMT, and MT\n" << std::flush; // GR
     
     AddEdge( node1, node2, node3 );  //add edge between node1 and node2
     AddEdgeAndMakeTriangle( node3, node1, node2 ); // ABN
@@ -5441,7 +5445,7 @@ AddNodeAt( tArray< double > &xyz, double time )
   
   UpdateMesh();
   
-  if (1)//DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "AddNodeAt finished, " << nnodes << std::endl;
   return newNodePtr2;
 }
@@ -5514,11 +5518,11 @@ UpdateMesh( bool checkMeshConsistency )
     curedg = elist.NextP();
     assert( curedg != 0 ); // failure = complementary edges not consecutive
     curedg->setLength( len );
-    if(1) //DEBUG
+    if(kDebug) //DEBUG  // GR
       if( elist.IsActive() )
         if( len < minlen ) minlen = len;
   } while( (curedg=elist.NextP()) != NULL);
-  if(1) //DEBUG
+  if(kDebug) //DEBUG // GR
     std::cout << "minimum edge length: " << minlen << " m \n";
   
   setVoronoiVertices();
@@ -5588,7 +5592,7 @@ CheckForFlip( tTriangle * tri, int nv, bool flip, bool useFuturePosn )
   // coordinates rather than current coordinates
   if( !flip && useFuturePosn)
   {
-    if(1) std::cout << "  Doing flip test based on future position\n";
+    if(kDebug) std::cout << "  Doing flip test based on future position\n"; // GR
     // use virtual function that will return new coords for nodes
     p0 = node0->FuturePosn();
     p1 = node1->FuturePosn();
@@ -5599,12 +5603,12 @@ CheckForFlip( tTriangle * tri, int nv, bool flip, bool useFuturePosn )
   // If p0-p1-p2 passes the test, no flip is necessary
   if( TriPasses( ptest, p0, p1, p2 ) ) return FLIP_NOT_NEEDED;
   
-  if(1) std::cout << "CheckForFlip: case flip needed\n";
+  if(kDebug) std::cout << "CheckForFlip: case flip needed\n"; // GR
   
   // Now a flip is necessary
   if ( !tri->ePtr( (nv+2)%3)->isFlippable() )
   {
-    if(1) std::cout << "In CheckForFlip, case FLIP_NOT_ALLOWED\n";
+    if(kDebug) std::cout << "In CheckForFlip, case FLIP_NOT_ALLOWED\n"; // GR
     return FLIP_NOT_ALLOWED;
   }
   
@@ -5615,7 +5619,7 @@ CheckForFlip( tTriangle * tri, int nv, bool flip, bool useFuturePosn )
   {
     if( !PointsCCW( p0, p1, ptest ) || !PointsCCW( p0, ptest, p2 ) )
       return FLIP_ERROR;
-    if(1) std::cout << "calling Flip edge from cff" << std::endl;
+    if(kDebug) std::cout << "calling Flip edge from cff" << std::endl; // GR
     FlipEdge( tri, triop, nv, nvop );
     return FLIP_DONE;
   }
@@ -5681,7 +5685,7 @@ bool tMesh< tSubNode >::
 FlipEdge( tTriangle * tri, tTriangle * triop ,int nv, int nvop,
          bool useFuturePosn )
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
   {
     std::cout << "FlipEdge(...)..." << std::endl;
     std::cout << " with tri = #" << tri->getID() << " p0=" << tri->pPtr(0)->getID()  << " p1=" << tri->pPtr(1)->getID() << " p2=" << tri->pPtr(2)->getID() << std::endl;
@@ -5703,7 +5707,7 @@ FlipEdge( tTriangle * tri, tTriangle * triop ,int nv, int nvop,
        tEdge::isFlowAllowed(na, nc) != tEdge::isFlowAllowed(nb, nd)
        );
   
-  if (1) {
+  if (kDebug) { // GR
     std::cout << " move=" << move << std::endl;
     std::cout << " na: " << na->getX() << " " << na->getY() << " " << na->getID() << " " << na->getBoundaryFlag() << std::endl;
     std::cout << " nb: " << nb->getX() << " " << nb->getY() << " " << nb->getID() << " " << nb->getBoundaryFlag() << std::endl;
@@ -5735,7 +5739,7 @@ FlipEdge( tTriangle * tri, tTriangle * triop ,int nv, int nvop,
   {
     if( edg->FlowAllowed() )
     {
-      if (1) std::cout << " case flow allowed\n";
+      if (kDebug) std::cout << " case flow allowed\n"; // GR
       edgeList.moveToActiveBack( enodePtr1 );
       edgeList.setNActiveNodes(edgeList.getActiveSize()+1);
       edgeList.moveToActiveBack( enodePtr2 );
@@ -5743,7 +5747,7 @@ FlipEdge( tTriangle * tri, tTriangle * triop ,int nv, int nvop,
     }
     else
     {
-      if (1) std::cout << " case flow not allowed\n";
+      if (kDebug) std::cout << " case flow not allowed\n"; // GR
       edgeList.moveToBack( enodePtr1 );
       edgeList.setNActiveNodes(edgeList.getActiveSize()-1);
       edgeList.moveToBack( enodePtr2 );
@@ -5927,7 +5931,7 @@ CheckTriEdgeIntersect()
         {
           if( ct->pPtr(i)->getBoundaryFlag() != kNonBoundary ) j++;
         }
-        if(1) {
+        if(kDebug) { // GR
           std::cout << " It has " << j << " boundary verts.\n";
         }
         if( j > 1 )
@@ -6038,7 +6042,7 @@ CheckTriEdgeIntersect()
                 tmpNodeList.insertAtBack( *cn );
                 
                 //DEBUG-QC
-                if (0) //DEBUG
+                if (kDebug) //DEBUG // GR
                   std::cout<<"CTI, deleting node with ID,x,y,z:"
                   << cn->getID()<<" "<<cn->getX()
                   <<" "<<cn->getY()<<" "<<cn->getZ()<<std::endl;
@@ -6067,7 +6071,7 @@ CheckTriEdgeIntersect()
     else
       cn->RevertToOldCoords();
     //DEBUG-QC
-    if (0) //DEBUG
+    if (kDebug) //DEBUG // GR
       std::cout<<"CTI, adding node with x,y,z:"
 	    <<cn->getX()<<" "<<cn->getY()<<" "<<cn->getZ()<<std::endl;
     

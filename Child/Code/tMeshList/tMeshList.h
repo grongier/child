@@ -378,7 +378,7 @@ template< class NodeType, class ListNodeType >
 void tMeshList< NodeType, ListNodeType >::
 moveToBack( ListNodeType * mvnode )
 {
-   if (1) //DEBUG
+   if (0) //DEBUG
      std::cout << "moveToBack( ListNodeType )\n";
 
    assert( mvnode!=0 );

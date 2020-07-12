@@ -69,6 +69,9 @@
 #include "tFloodplain.h"
 #include "../tListInputData/tListInputData.h"
 
+#define kDebug 1 // GR added this to control debugging
+#define kDisplay 1 // GR added this to control printing
+
 /**************************************************************************\
 **
 **  @fn tFloodplain( tInputFile &infile, tMesh<tLNode *mp );
@@ -104,7 +107,7 @@ tFloodplain::tFloodplain( const tInputFile &infile, tMesh<tLNode> *mp )
 
    kdb = kdb*pow( event_min, mqbmqs );
 
-   if (fpmode==2)
+   if (fpmode==2 && kDisplay)
      std::cout<<"Floodplain aggradation based on suspension " <<std::endl;
 
    //std::cout << "kdb: " << kdb << "  mqbmqs " << mqbmqs << std::endl;
@@ -312,7 +315,7 @@ void tFloodplain::DepositOverbank( double precip, double delt, double ctime )
 	        }
 #endif
 
-            if( deparr[0]>floodDepth)
+            if( deparr[0]>floodDepth && kDisplay) // GR
 	           std::cout << " *WARNING, deposit thicker than flood depth\n";
 
 	        // Modify heights and communicate to stratigraphy tStratGrid
@@ -476,7 +479,7 @@ double tFloodplain::ConcentrationToHeight(double flooddepth, tLNode *fpnode,
   // Or use something as Rd (rate of sedimentation) = C*Vsettling*(1-To/Tc)   (kgm^2s-1
 
   //DEBUG
-  if(sedheight < 0.0 || sedheight > 10.0){
+  if(kDebug && (sedheight < 0.0 || sedheight > 10.0)){ // GR
     std::cout<<"ERROR in tFloodplain::CalculateSedHeight, very thick dry sediment column "<<std::endl;
     std::cout<<"sedheight = "<<sedheight<<std::endl;
   }
@@ -648,14 +651,18 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
   // Compute length and slope of channel
   cn = inletNode;
 
-  if(cn->getZ() > newInletElevation){
-    std::cout<<"Channel goes down " <<cn->getZ()-newInletElevation<< " m"<<std::endl;
-  } else if(cn->getZ()< newInletElevation){
-    std::cout<<"Channel goes up " << newInletElevation-cn->getZ()<< " m"<<std::endl;
+  if (kDisplay) { // GR
+      if(cn->getZ() > newInletElevation){
+        std::cout<<"Channel goes down " <<cn->getZ()-newInletElevation<< " m"<<std::endl;
+      } else if(cn->getZ()< newInletElevation){
+        std::cout<<"Channel goes up " << newInletElevation-cn->getZ()<< " m"<<std::endl;
+      }
   }
 
   counter=0;
   double totlen = 0.0;  // Total length of channel found so far
+  double maxX = inletNode->getX();
+  double minX = inletNode->getX();
   double maxY = inletNode->getY();
   double minY = inletNode->getY();
   do
@@ -664,17 +671,21 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
       assert( fe );
       totlen += fe->getLength();
 
+      if(cn->getX() > maxX){ maxX = cn->getX(); }
+      if(cn->getX() < minX){ minX = cn->getX(); }
       if(cn->getY() > maxY){ maxY = cn->getY(); }
       if(cn->getY() < minY){ minY = cn->getY(); }
 
       //DEBUG
-      if( cn->getZ() < cn->getDownstrmNbr()->getZ()  ){
-      	std::cout<<"  "<<std::endl;
-      	std::cout<<"Bump In Floodplain loop "<<std::endl;
-      	std::cout<<"for ID "<<cn->getID()<<" z= "<<cn->getZ()<<std::endl;
-      	std::cout<<"Its downstream " << cn->getDownstrmNbr()->getID() << " z = "<<cn->getDownstrmNbr()->getZ()<<std::endl;
-      	std::cout<<"  "<<std::endl;
-      	//exit(1);
+      if (kDebug) { // GR
+          if( cn->getZ() < cn->getDownstrmNbr()->getZ()  ){
+          	std::cout<<"  "<<std::endl;
+          	std::cout<<"Bump In Floodplain loop "<<std::endl;
+          	std::cout<<"for ID "<<cn->getID()<<" z= "<<cn->getZ()<<std::endl;
+          	std::cout<<"Its downstream " << cn->getDownstrmNbr()->getID() << " z = "<<cn->getDownstrmNbr()->getZ()<<std::endl;
+          	std::cout<<"  "<<std::endl;
+          	//exit(1);
+          }
       }
       //END DEBUG
 
@@ -692,16 +703,18 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
   while( cn->getBoundaryFlag()==kNonBoundary && counter < 1000  );
 
   if(counter == 1000){                                                    //DEBUG
-    std::cout<<"   \n";
-    std::cout<<"--------------------------------------------------------------------\n";
-    std::cout<<" WARNING:Channel does not find a boundary in function               \n";
-    std::cout<<" tMainChannelDriver::UpdateChannelElevation in floodplain.cpp       \n";
-    std::cout<<" 								       \n";
-    std::cout<<" Recursion along meander path ?				       \n";
-    std::cout<<" When this happens might also have problem in tLNode->getSlope()    \n";
-    std::cout<<"                                                                    \n";
-    std::cout<<" Showing the first 100 nodes below:                                 \n";
-    std::cout<<"--------------------------------------------------------------------\n";
+    if (kDebug) { // GR
+        std::cout<<"   \n";
+        std::cout<<"--------------------------------------------------------------------\n";
+        std::cout<<" WARNING:Channel does not find a boundary in function               \n";
+        std::cout<<" tMainChannelDriver::UpdateChannelElevation in floodplain.cpp       \n";
+        std::cout<<" 								       \n";
+        std::cout<<" Recursion along meander path ?				       \n";
+        std::cout<<" When this happens might also have problem in tLNode->getSlope()    \n";
+        std::cout<<"                                                                    \n";
+        std::cout<<" Showing the first 100 nodes below:                                 \n";
+        std::cout<<"--------------------------------------------------------------------\n";
+    }
 
     int counter2=0;
     cn=inletNode;
@@ -714,7 +727,7 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
 
 	cn = cn->getDownstrmNbr();
 	assert( cn );
-	std::cout<< "M-Nodes " <<cn->getID()<<' '<<cn->getX()<< ' ' << cn->getY()<<' '<<cn->getZ()<<" Q= "<<cn->getQ()<<" W= "<<cn->getChanWidth()<< " MStatus="<<cn->Meanders()<<std::endl;
+	if (kDebug) std::cout<< "M-Nodes " <<cn->getID()<<' '<<cn->getX()<< ' ' << cn->getY()<<' '<<cn->getZ()<<" Q= "<<cn->getQ()<<" W= "<<cn->getChanWidth()<< " MStatus="<<cn->Meanders()<<std::endl; // GR
 	counter2++;
       }
     while( cn->getBoundaryFlag()==kNonBoundary && counter2 < 100  );
@@ -726,22 +739,23 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
   if(counter==1000) 
   {
 	totlen=7000.;
-	std::cout << "INVOKING BIG HACK IN tMainChannelDriver::UpdateMainChannelElevation()" << std::endl;
+	if (kDebug) std::cout << "INVOKING BIG HACK IN tMainChannelDriver::UpdateMainChannelElevation()" << std::endl; // GR
   }
   chanslp = drop / totlen;
 
+  if (kDisplay) { // GR
+      std::cout  << "Channel Belt Geometry:       "<< std::endl;
+      std::cout  << "1) Channel length= "<<totlen << " m"<< std::endl;
+      std::cout  << "2) Sinuosity = "<<totlen/(maxY - minY) << " - "<< std::endl;
+      std::cout  << "3) Channel belt width = "<< maxX - minX<< " m"<< std::endl;
+      std::cout  << "4) Chanslope ="<<chanslp<<" - "<< std::endl;
+      std::cout  << "5) InletElev ="<<inletNode->getZ()<<std::endl;
+      std::cout  << "       "<< std::endl;
+  }
 
-  std::cout  << "Channel Belt Geometry:       "<< std::endl;
-  std::cout  << "1) Channel length= "<<totlen << " m"<< std::endl;
-  std::cout  << "2) Sinuosity = "<<totlen/5000.0 << " - "<< std::endl;
-  std::cout  << "3) Channel belt width = "<< maxY - minY<< " m"<< std::endl;
-  std::cout  << "4) Chanslope ="<<chanslp<<" - "<< std::endl;
-  std::cout  << "5) InletElev ="<<inletNode->getZ()<<std::endl;
-  std::cout  << "       "<< std::endl;
 
-
-  meanderfile<<tm<<" "<<totlen<<" "<<totlen/5000.<<" "<<maxY-minY
-	     <<" "<<chanslp<<inletNode->getZ()<<std::endl;
+  meanderfile<<tm<<" "<<totlen<<" "<<maxY-minY<<" "<<totlen/(maxY-minY)<<" "<<maxX-minX
+	     <<" "<<chanslp<<" "<<inletNode->getZ()<<" "<<counter<<std::endl;
 
   // Update elevations of all channel points below inlet
   tArray<double> delz( num_grnsize_fractions );           // for the triangular nodes
@@ -832,7 +846,7 @@ void tMainChannelDriver::UpdateMainChannelElevation( double tm,
   if(counter==1000) 
   {
 	totlen=7000.;
-	std::cout << "INVOKING __SECOND__ BIG HACK IN tMainChannelDriver::UpdateMainChannelElevation()" << std::endl;
+	if (kDebug) std::cout << "INVOKING __SECOND__ BIG HACK IN tMainChannelDriver::UpdateMainChannelElevation()" << std::endl; // GR
   }
   chanslp = drop / totlen;
 
