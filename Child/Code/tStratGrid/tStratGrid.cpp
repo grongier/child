@@ -26,6 +26,9 @@
 
 #include <iostream>
 
+#define kDebug 1 // GR added this to control debugging
+#define kDisplay 1 // GR added this to control printing
+
 
 /**************************************************************************\
  **								 tSTRATGRID
@@ -73,6 +76,7 @@ tStratGrid::tStratGrid( tInputFile const &infile, tMesh<tLNode> *mp_)
   grlength = infile.ReadItem(grlength,"GR_LENGTH");
 
   int endtime  = infile.ReadItem(endtime,"RUNTIME");
+  int inputtime  = infile.ReadItem(inputtime,"INPUTTIME");
   nWrite   = infile.ReadItem(nWrite,"OPINTRVL");
 
   int arraysize = endtime/nWrite;
@@ -85,7 +89,7 @@ tStratGrid::tStratGrid( tInputFile const &infile, tMesh<tLNode> *mp_)
     setSurface(i,0.0);
     setSubsurface(i,0.0);
     setSubsurface_mbelt(i,0.0);
-    setOutputTime(i,0.0);
+    setOutputTime(i,inputtime);
   }
 
   imax=int(grwidth/griddx);
@@ -140,14 +144,14 @@ tStratGrid::tStratGrid( tInputFile const &infile, tMesh<tLNode> *mp_)
 
 
   // Build StratConnect
-  if (1) { //DEBUG
+  if (kDebug) { //DEBUG // GR
     std::cout
       <<"   \n"
       <<"Building the StratConnect table of triangles in constructor...."
       <<std::endl;
   }
   updateConnect();
-  if (1) { //DEBUG
+  if (kDebug) { //DEBUG // GR
     std::cout
       <<"Building the StratConnect table of triangles in constructor finished"
       <<"\n    "<<std::endl;
@@ -155,12 +159,12 @@ tStratGrid::tStratGrid( tInputFile const &infile, tMesh<tLNode> *mp_)
 
   // Initialize the elevations of the StratNodes by interpolating between the
   // Triangles of the tMesh
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout<<" Initializing tStratGrid elevations by interpolation, for the first Time "<<std::endl;
   InterpolateElevations();
 
   setSectionBase();   // DEBUG FUNCTION, all stratnodes have to know their initial, stratigraphy basis
-  if (1) {//DEBUG
+  if (kDebug) { //DEBUG // GR
     std::cout
       <<" Finished Initializing tStratGrid elevations by interpolation, for the first Time "
       <<"\n    "<<std::endl;
@@ -370,65 +374,65 @@ void tStratGrid::UpdateStratGrid(tUpdate_t mode, double time)
   switch(mode){
   case k0:
     {
-      std::cout<<"+++ 0 -UPDATESTRATGRID, START INITIALIZING...."<<std::endl;
+      if (kDisplay) std::cout<<"+++ 0 -UPDATESTRATGRID, START INITIALIZING...."<<std::endl; // GR
       updateConnect();
       ResetAccummulatedDh();
       InterpolateErodepFromElevations(time);          // does the same as  the sweep function
       CheckSectionBase(mode);
-      std::cout<<"   "<<std::endl;
-      std::cout<<"+++ 0 -UPDATESTRATGRID, FINISHED INITIALIZING...."<<std::endl;
-      std::cout<<"   "<<std::endl;
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
+      if (kDisplay) std::cout<<"+++ 0 -UPDATESTRATGRID, FINISHED INITIALIZING...."<<std::endl; // GR
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
     }
     break;
     // 1 = Update after streampower-type erosion and deposition
   case k1:
     {
-      std::cout<<"+++ 1 -UPDATESTRATGRID, START STREAMPOWER...."<<std::endl;
+      if (kDisplay) std::cout<<"+++ 1 -UPDATESTRATGRID, START STREAMPOWER...."<<std::endl; // GR
       updateConnect();
       InterpolateErodep(time);
       ResetAccummulatedDh();
       CheckSectionBase(mode);
-      std::cout<<"   "<<std::endl;
-      std::cout<<"+++ 1 -UPDATESTRATGRID, FINISHED STREAMPOWER...."<<std::endl;
-      std::cout<<"   "<<std::endl;
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
+      if (kDisplay) std::cout<<"+++ 1 -UPDATESTRATGRID, FINISHED STREAMPOWER...."<<std::endl; // GR
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
     }
     break;
     // 2 = Update after meander migration (may decapitate stratNodes)
   case k2:
     {
-      std::cout<<"+++ 2 -UPDATESTRATGRID, START MIGRATION...."<<std::endl;
+      if (kDisplay) std::cout<<"+++ 2 -UPDATESTRATGRID, START MIGRATION...."<<std::endl; // GR
       updateConnect();
       SweepChannelThroughRectGrid(time);  	// does NOT use accumDh
       CheckSectionBase(mode);
       ResetAccummulatedDh();
-      std::cout<<"   "<<std::endl;
-      std::cout<<"+++ 2 -UPDATESTRATGRID, FINISHED  MIGRATION...."<<std::endl;
-      std::cout<<"   "<<std::endl;
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
+      if (kDisplay) std::cout<<"+++ 2 -UPDATESTRATGRID, FINISHED  MIGRATION...."<<std::endl; // GR
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
     }
     break;
     // 3 = Update after geometrical meander-related erosion and deposition
   case k3:
     {
-      std::cout<<"+++ 3-UPDATESTRATGRID, START CHANNEL DRIVER...."<<std::endl;
+      if (kDisplay) std::cout<<"+++ 3-UPDATESTRATGRID, START CHANNEL DRIVER...."<<std::endl; // GR
       updateConnect();
       InterpolateErodep(time);
       CheckSectionBase(mode);
       ResetAccummulatedDh();
-      std::cout<<"    "<<std::endl;
-      std::cout<<"+++ 3-UPDATESTRATGRID, FINISHED CHANNEL DRIVER...."<<std::endl;
-      std::cout<<"   "<<std::endl;
+      if (kDisplay) std::cout<<"    "<<std::endl; // GR
+      if (kDisplay) std::cout<<"+++ 3-UPDATESTRATGRID, FINISHED CHANNEL DRIVER...."<<std::endl; // GR
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
     }
     break;
   case k4:
     {
-      std::cout<<"+++ 4 -UPDATESTRATGRID, START  FLOODPLAIN...."<<std::endl;
+      if (kDisplay) std::cout<<"+++ 4 -UPDATESTRATGRID, START  FLOODPLAIN...."<<std::endl; // GR
       updateConnect();
       InterpolateErodep(time);
       CheckSectionBase(mode);
       ResetAccummulatedDh();
-      std::cout<<"    "<<std::endl;
-      std::cout<<"+++ 4 -UPDATESTRATGRID, FINISHED  FLOODPLAIN...."<<std::endl;
-      std::cout<<"   "<<std::endl;
+      if (kDisplay) std::cout<<"    "<<std::endl; // GR
+      if (kDisplay) std::cout<<"+++ 4 -UPDATESTRATGRID, FINISHED  FLOODPLAIN...."<<std::endl; // GR
+      if (kDisplay) std::cout<<"   "<<std::endl; // GR
     }
     break;
   default:
@@ -719,7 +723,7 @@ void tStratGrid::SweepChannelThroughRectGrid(double time)
 {
   int i,j;
   
-  if(1) std::cout<<"SCTRG";
+  if(kDebug) std::cout<<"SCTRG"; // GR
 
   for(i=0; i<imax; i++){
     for(j=0; j<jmax; j++){
@@ -774,7 +778,7 @@ void tStratGrid::SweepChannelThroughRectGrid(double time)
     } // i
   }   // j
 
-  if(1) std::cout<<".End" << std::endl;
+  if(kDebug) std::cout<<".End" << std::endl; // GR
 
 } // end of function tStratGrid SweepChannelThroughRectGrid(double time)
 
@@ -1018,7 +1022,7 @@ tStratNode::tStratNode( tInputFile const &infile ) :
   // This is a --HACK-- by QUINTIJN !!! Do not use this value
   // while trying to sort grainsizes properly on the tMesh, it only applies to tStratGRid
   // with is more geomettrical deposition functions in the tFloodplain class
-  numg++;
+  if (numg == 1) numg++; // GR
   //-Carefull, this is done to give a StratNode 2 grainsizes classes,
   //while the Mesh is still running with 1 grain size as demanded
   //by detachment limited conditions during meandering
@@ -1674,7 +1678,7 @@ void tStratNode::EroDepSimple( int l, tArray<double>dh, double tt,double current
     }
 
     //2)No top sediment layer, deposit everything  on top of bedrock
-    else if(getLayerSed(i)==0){
+    else if(getLayerSed(l)==0){
       makeNewLayerBelow(-1,tLayer::kSed,KRnew,dh,tt,current);
     }
 
@@ -1692,61 +1696,61 @@ void tStratNode::EroDepSimple( int l, tArray<double>dh, double tt,double current
       if(getLayerDepth(l) >= (-dhtotal) ){            // There is enough to erode in the first layer
 
 
-	if(getI()==debugI && getJ()==debugJ && 0)
-	  {std::cout<<" erode 1"<<std::endl;
-	  std::cout<<" thickness = "<<getLayerDepth(l)<<std::endl;
-	  }
-	// just erode from the top sediment layer
-	addtoLayer(l,dhtotal,tt);
-	if(getLayerDepth(l) > 1000){  setSectionBase(z);   }
-	// Is the current op layer after this operation too small ?, if yes just remove it
-	//if(getLayerDepth(l)<1e-7){
-	//   removeLayer(l);
-	//}
-	if(getI()==debugI && getJ()==debugJ && 0){std::cout<<" erode 1-finished"<<std::endl;    }
+    if(getI()==debugI && getJ()==debugJ && 0)
+      {std::cout<<" erode 1"<<std::endl;
+      std::cout<<" thickness = "<<getLayerDepth(l)<<std::endl;
+      }
+    // just erode from the top sediment layer
+    addtoLayer(l,dhtotal,tt);
+    if(getLayerDepth(l) > 1000){  setSectionBase(z);   }
+    // Is the current op layer after this operation too small ?, if yes just remove it
+    //if(getLayerDepth(l)<1e-7){
+    //   removeLayer(l);
+    //}
+    if(getI()==debugI && getJ()==debugJ && 0){std::cout<<" erode 1-finished"<<std::endl;    }
 
       }
       else if(getLayerDepth(l) < (-dhtotal) ){            // we want to erode more than the top one layer
 
-	if(getI()==debugI && getJ()==debugJ){std::cout<<" erode 2"<<std::endl;    }
+    if(kDebug && getI()==debugI && getJ()==debugJ){std::cout<<" erode 2"<<std::endl;    } // GR
 
-	remainder=dhtotal; 				    // negative value, giving the dh we need to erode
-	int debugCount=0;
-	while(remainder < 0.0 && getLayerSed(l)!=0){
-	  thickness=getLayerDepth(l);
-	  if(-remainder <= thickness){                    // remainder is smaller thatn the new layer thickness
-	    if(getI()==debugI && getJ()==debugJ && 0){
-	      std::cout<<" Want to erode layer thickness= "<<thickness<< " in erode 3"<<std::endl;
-	      std::cout<<" With "<<remainder<<std::endl;
-	    }
+    remainder=dhtotal;                  // negative value, giving the dh we need to erode
+    int debugCount=0;
+    while(remainder < 0.0 && getLayerSed(l)!=0){
+      thickness=getLayerDepth(l);
+      if(-remainder <= thickness){                    // remainder is smaller thatn the new layer thickness
+        if(getI()==debugI && getJ()==debugJ && 0){
+          std::cout<<" Want to erode layer thickness= "<<thickness<< " in erode 3"<<std::endl;
+          std::cout<<" With "<<remainder<<std::endl;
+        }
 
-	    addtoLayer(l,remainder,tt);                   // just erode the remainder
-	    remainder=0.0;                              // and reset it to zero
+        addtoLayer(l,remainder,tt);                   // just erode the remainder
+        remainder=0.0;                              // and reset it to zero
 
-	    if(getI()==debugI && getJ()==debugJ && 0){
-	      std::cout<<" eroded 3, new thickness= "<<getLayerDepth(l)<<std::endl;
-	    }
-	    if(thickness > 1000){ setSectionBase(z);}
-	  }
-	  else if(-remainder > thickness){
+        if(getI()==debugI && getJ()==debugJ && 0){
+          std::cout<<" eroded 3, new thickness= "<<getLayerDepth(l)<<std::endl;
+        }
+        if(thickness > 1000){ setSectionBase(z);}
+      }
+      else if(-remainder > thickness){
 
-	    removeLayer(l);                              // remainder is larger than the layer
-	    remainder+=thickness;                        // remove the entire layer, but decrement the remainder
-	    if(getI()==debugI && getJ()==debugJ && 0){
-	      std::cout<<" erode 4 removing thickness "<< thickness<<std::endl;
-	      std::cout<<" getlayerdepth now returns  "<<getLayerDepth(l)<<std::endl;
-	      std::cout<<"and the remainder is "<<remainder<<std::endl;
-	    }
-	  }
-      if(1) {
-  	     debugCount++;
-		 if( debugCount>1e6 ) {
-		    std::cout<<"More than 1e6 iterations in tStratNode::EroDepSimple." << std::endl;
-			std::cout<<"Node "<<getI()<<","<<getJ()<<" remainder "<<remainder<<" thickness "<<thickness<<std::endl;
-			ReportFatalError("Apparent endless loop in tStratNode::EroDepSimple");
-		 }
-	  }
-	}
+        removeLayer(l);                              // remainder is larger than the layer
+        remainder+=thickness;                        // remove the entire layer, but decrement the remainder
+        if(getI()==debugI && getJ()==debugJ && 0){
+          std::cout<<" erode 4 removing thickness "<< thickness<<std::endl;
+          std::cout<<" getlayerdepth now returns  "<<getLayerDepth(l)<<std::endl;
+          std::cout<<"and the remainder is "<<remainder<<std::endl;
+        }
+      }
+      if(kDebug) { // GR
+         debugCount++;
+         if( debugCount>1e6 ) {
+            std::cout<<"More than 1e6 iterations in tStratNode::EroDepSimple." << std::endl;
+            std::cout<<"Node "<<getI()<<","<<getJ()<<" remainder "<<remainder<<" thickness "<<thickness<<std::endl;
+            ReportFatalError("Apparent endless loop in tStratNode::EroDepSimple");
+         }
+      }
+    }
 
 
       }
@@ -1902,8 +1906,8 @@ tArray<double> tStratNode::addtoLayer(int l, double val, double tt)
       n=0;
       while(n<numg)
 	{
-	  ret[n]=hlp->getDgrade(n)*val/amt;             // return this, will be passed on to top layer
-	  hlp->addDgrade(n,hlp->getDgrade(n)*val/amt);  // modify the stratigraphic layer
+	  ret[n]=hlp->getDgrade(n)*(val/amt);             // return this, will be passed on to top layer // GR added parenthesis
+	  hlp->addDgrade(n,hlp->getDgrade(n)*(val/amt));  // modify the stratigraphic layer // GR added parenthesis
 	  n++;
 	}
 

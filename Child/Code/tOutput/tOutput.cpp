@@ -1284,11 +1284,11 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
   // Surfer style file containing stratnodes x,y,z, mindist to meander
   // and toplayer's Ct, Rt, and Thickn.
   double depth;
-  double mbelt_Ytop;
-  double mbelt_Ybase;
+  double mbelt_Xtop;
+  double mbelt_Xbase;
 
-  mbelt_Ytop  = 21000.0;   //y-coordinate narrow channel belt/ meander zone
-  mbelt_Ybase = 18900.0;   //of width 1200m
+  mbelt_Xtop  = 6000.0;   //x-coordinate narrow channel belt/ meander zone
+  mbelt_Xbase = 2000.0;   //of width 1200m
 
 
   std::ofstream topofs;
@@ -1307,7 +1307,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
 	<<"D1"<<' '<<"DA1"<<' '<<"DA2"<<' '<<"DA3"<<' '<<"DA4"<<'\n';
   tMatrix<tStratNode> const *StratNodeMatrix = stratGrid->getStratNodeMatrix();
 
-  const int current_ts = int( ROUND( time/stratGrid->getnWrite() ) );
+  const int current_ts = int( ROUND( (time - stratGrid->getOutputTime(0))/stratGrid->getnWrite() ) );
   //std::cout<<"Current-Ts= " << current_ts << '\n';
 
   tArray<double> surface(current_ts+1);
@@ -1366,7 +1366,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
 	      subsurface[ts]      += thisLayerDepth;                        // Write Subsurface, entire floodplain
 	      if(l==1) surface[ts]+= thisLayerDepth;
 
-	      if(sn.getY() >= mbelt_Ybase && sn.getY() <= mbelt_Ytop){
+	      if(sn.getX() >= mbelt_Xbase && sn.getX() <= mbelt_Xtop){
 	      	subsurface_mbelt[ts] += thisLayerDepth;
 	      }
 
@@ -1394,7 +1394,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
 		subsurface[ts]      += TimeInSlice*Rsed;                     // add part
 		if(l==1) surface[ts] +=  TimeInSlice*Rsed;                   // surface layer
 
-		if(sn.getY() >= mbelt_Ybase && sn.getY() <= mbelt_Ytop){
+		if(sn.getX() >= mbelt_Xbase && sn.getX() <= mbelt_Xtop){
 		  subsurface_mbelt[ts] += TimeInSlice*Rsed;
 		}
 
@@ -1420,7 +1420,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
 	      subsurface[ts]      +=  TimeInSlice*Rsed;                   // add part
 	      if(l==1) surface[ts] +=  TimeInSlice*Rsed;                  // surface layer
 
-	      if(sn.getY() >= mbelt_Ybase && sn.getY() <= mbelt_Ytop){
+	      if(sn.getX() >= mbelt_Xbase && sn.getX() <= mbelt_Xtop){
 		subsurface_mbelt[ts] += TimeInSlice*Rsed;
 	      }
 
@@ -1454,7 +1454,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
       double mindist = 1000000.0;
       assert( netPtr != 0);
       meandernode = netPtr->getInletNodePtrNC();
-      while(meandernode != NULL && counter < 300){                 // nb wil not work if num meander nodes > 300 !
+      while(meandernode != NULL && counter < 300000000){                 // nb wil not work if num meander nodes > 300 !
 	const double XX = sn.getX()- meandernode->getX();
 	const double YY = sn.getY()- meandernode->getY();
 	dist = sqrt( XX*XX + YY*YY );
@@ -1476,7 +1476,7 @@ void tStratOutputImp<tSubNode>::WritePreservationPotential(double time,
        //
        // Oeps, be carefull
       \******************************************************/
-      double axisdist = sn.getX() - ( netPtr->getInletNodePtr() ->getY());
+      double axisdist = sn.getX() - ( netPtr->getInletNodePtr() ->getX());
 
       depth_age[1] = sn.getAgeAtDepth( 0.5 );
       depth_age[2] = sn.getAgeAtDepth( 1.0 );

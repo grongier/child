@@ -9,6 +9,7 @@
 
 #include "tStreamMeander.h"
 #define kBugTime 5000000
+#define kDebug 1 // GR added this to control debugging
 
 #include "meander.h"
 
@@ -213,7 +214,7 @@ void tStreamMeander::FindMeander()
   tLNode * cn;
   tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() );
 
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout << "FindMeander...()";
 
   for( cn = nodIter.FirstP(); nodIter.IsActive(); cn = nodIter.NextP() )
@@ -281,9 +282,12 @@ tLNode* tStreamMeander::BlockShortcut( tLNode* crn, tLNode* bpn, tLNode& nn,
       nn.setXYZD( zeroArr );
       // TMP HACK? add a centimeter-SL 9/03
       if( dumcoords[2] < bpn->getZ()+0.01) dumcoords[2] = bpn->getZ()+0.01;
+      if( dumcoords[2] < crn->getZ()+0.01) dumcoords[2] = crn->getZ()+0.01; // GR added this to make sure the new node won't become a sink
    }
    else{
       FindBankCoords( crn, dumcoords );
+      nn.setX( ic[0] ); // GR added this
+      nn.setY( ic[1] ); // GR added this
       // TMP HACK? add a centimeter-SL 9/03
       if( dumcoords[2] < crn->getZ()+0.01) dumcoords[2] = crn->getZ()+0.01;
    }
@@ -297,11 +301,11 @@ tLNode* tStreamMeander::BlockShortcut( tLNode* crn, tLNode* bpn, tLNode& nn,
       bpn->setNew2DCoords( 0.0, 0.0 );
       bpn->AddDrArea( -crn->getDrArea() );
       crn->setDownstrmNbr( dn );
-	  if(0) //DEBUG
+	  if(kDebug) //DEBUG // GR
 	     std::cout<<"BlockShortcut: addition failed, un-meanderizing node "<<bpn->getID()<<std::endl;
    }
    
-   if(1 && newnodeP!=NULL) //DEBUG
+   if(kDebug && newnodeP!=NULL) //DEBUG // GR
    {
       std::cout<<"BlockShortcut: added node "<<newnodeP->getID()<<" at "<<newnodeP->getX()<<","<<newnodeP->getY()
 	     <<","<<newnodeP->getZ()<<" crn="<<crn->getID()<<" bpn="<<bpn->getID()<<std::endl;
@@ -429,7 +433,7 @@ const tArray< double > tStreamMeander::FindInterpCoords( tLNode* crn, tLNode* nP
 int tStreamMeander::InterpChannel( double time )
 {
    const double timetrack = time;
-   if (1) {//DEBUG
+   if (kDebug){//DEBUG // GR
       if( timetrack >= kBugTime )
           std::cout << "InterpChannel()\n";
    }
@@ -484,17 +488,17 @@ int tStreamMeander::InterpChannel( double time )
                tLNode* newnodeP = BlockShortcut( crn, bpn, nn, ic, time );
                if( newnodeP != NULL ){
                   change = true;
-                  if (1) //DEBUG
+                  if (kDebug) //DEBUG // GR
                       std::cout<<"IC BS pt "<<newnodeP->getID()<<" added at "
                           << newnodeP->getX() << "," << newnodeP->getY() << std::endl;
                } else {
-		 if (1) //DEBUG
+		 if (kDebug) //DEBUG // GR
 		   std::cout<<"IC BS pt NOT added at "
 		       << ic[0] << "," << ic[1] << std::endl;
 		 // Process of aborting point addition may have left node(s)
 		 // without valid flowedges:
 		 netPtr->ReInitFlowDirs();
-		 change = true;
+		 // change = true; // GR commented it
                }
             }
             else{
@@ -511,7 +515,7 @@ int tStreamMeander::InterpChannel( double time )
                   if( newnodeP != NULL )
                   {
                      change = true;
-                      if (1) //DEBUG
+                      if (kDebug) //DEBUG // GR
 			std::cout<<"IC pt "<<newnodeP->getID()<<" added at "
 			    << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
                     // previous node (prevNode) flows to new node (newnodeP)
@@ -523,13 +527,13 @@ int tStreamMeander::InterpChannel( double time )
                      assert( prevNode->getFlowEdg()->getDestinationPtr() == newnodeP );
                      prevNode = newnodeP;
                   } else {
-		    if (1) //DEBUG
+		    if (kDebug) //DEBUG // GR
 		      std::cout<<"IC pt NOT added at "
 			  << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
 		    // Process of aborting point addition may have left node(s)
 		    // without valid flowedges:
 		    netPtr->ReInitFlowDirs();
-		    change = true;
+		    // change = true; // GR commented it
                   }
                }
                // after adding all new nodes, make last new node (newnodeP) flow to
@@ -581,7 +585,7 @@ int tStreamMeander::InterpChannel( double time )
 
 void tStreamMeander::MakeReaches( double ctime)
 {
-  if (1) //DEBUG
+  if (kDebug) //DEBUG // GR
     std::cout<<"tStreamMeander::MakeReaches...";
   netPtr->UpdateNet( ctime ); //first update the net
   do
@@ -645,7 +649,7 @@ void tStreamMeander::FindReaches()
    tPtrList< tLNode > rnodList, *plPtr, listtodelete;
    rlListNode_t *tempnode;
 
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout<<"tStreamMeander::FindReaches()"<<std::endl;
 
    if( !(reachList.isEmpty()) ) reachList.Flush();
@@ -865,7 +869,7 @@ void tStreamMeander::FindReaches()
 void tStreamMeander::CalcMigration( double &time, double const &duration,
                                     double &cummvmt )
 {
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout<<"tStreamMeander::CalcMigration()...";
 
    //loop through reaches:
@@ -886,13 +890,13 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
          {
             curnode->setLatDisplace( 0.0, 0.0 );
             curnode->setNew2DCoords( curnode->getX(), curnode->getY() );
-            if (1){ //DEBUG
+            if (kDebug){ //DEBUG // GR
                const tArray< double > newxy = curnode->getNew2DCoords();
                std::cout << "init. new coords to " << newxy[0] << " " << newxy[1] << std::endl;
             }
          }
       }
-      if (1) //DEBUG
+      if (kDebug) //DEBUG // GR
           std::cout << "reach " << i << " length " << nrnodes[i] << std::endl;
 
       const int stations  // number of actual landscape nodes on reach
@@ -945,7 +949,7 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
             slopea[j] = curnode->getHydrSlope();
             widtha[j] = curnode->getHydrWidth();
             deptha[j] = curnode->getHydrDepth();
-            if (1) //DEBUG
+            if (kDebug) //DEBUG // GR
                 std::cout << "width, depth " << widtha[j] << " " << deptha[j] << std::endl;
             diama[j] = ( optdiamvar ) ? curnode->getDiam() : meddiam;
             lambdaa[j] = curnode->getBankRough();
@@ -984,7 +988,7 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
          for( curnode = rnIter.FirstP(), j=0; !(rnIter.AtEnd());
               curnode = rnIter.NextP(), j++ )
          {
-            if(1)
+            if(kDebug) // GR
                 std::cout << "add lat displace at " << curnode->getPermID() << ": "
                 << deltaxa[j] << "," << deltaya[j] << std::endl;
             curnode->addLatDisplace( deltaxa[j], deltaya[j] );
@@ -1078,14 +1082,14 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
          newxy[0] += delta[0];
          newxy[1] += delta[1];
          curnode->setNew2DCoords( newxy[0], newxy[1] );
-         if (1) //DEBUG
+         if (kDebug) //DEBUG // GR
              std::cout << "new coords set to " << newxy[0] << " " << newxy[1] << std::endl;
       }
    }
    time += dtm;
    cummvmt += maxfrac * dtm;
 
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout<<"done CalcMigration\n";
 
 }
@@ -1120,7 +1124,7 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
 \**********************************************************************/
 void tStreamMeander::Migrate( double ctime )
 {
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout<<"Migrate time=" << ctime <<std::endl;
    const double duration = netPtr->getStormPtrNC()->getStormDuration()
        + ctime;
@@ -1147,7 +1151,7 @@ void tStreamMeander::Migrate( double ctime )
       }
       else ctime=duration; // If no reaches, end here (GT added 3/12/99)
    }
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout<<"end migrate"<<std::endl;
 }
 
@@ -1287,61 +1291,74 @@ void tStreamMeander::AddChanBorder(double time)
    const tArray< double > zeroArr(4);
    tLNode channode;
 
-   int i;
+   // int i; // GR
    tPtrList< tLNode > *cr;
-   for( cr = rlIter.FirstP(), i=0; !(rlIter.AtEnd()); cr = rlIter.NextP(), ++i )
+   // for( cr = rlIter.FirstP(), i=0; !(rlIter.AtEnd()); cr = rlIter.NextP(), ++i ) // GR
+   for( cr = rlIter.FirstP(); !(rlIter.AtEnd()); cr = rlIter.NextP() )
    {
       tPtrListIter< tLNode > rnIter( *cr );
-      int j;
+      // int j; // GR
       tLNode* cn;
-      for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j )
+      // for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j ) // GR
+      for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() )
       {
 
-         tArray< double > oldpos = cn->getXYZD();
-         //select for nodes with old coords set:
-         if( oldpos[3] != 0.0 )
-         {
-            if (0) //DEBUG
-                std::cout << "node " << cn->getID()
-                     << " ready to drop new node" << std::endl;
-            //just make sure new node will be in a triangle
-            tTriangle* ct = meshPtr->LocateTriangle( oldpos[0], oldpos[1] );
-            if( ct != NULL )
-            {
-               //***NG: HERE IS WHERE YOU CAN FIND A DEPOSIT THICKNESS
-               //TO ADD TO THE NEW NODE***
-               channode.set3DCoords( oldpos[0], oldpos[1], oldpos[2] );
-               tArray< double > xyz(3);
-               for( int k=0; k<3; ++k ) xyz[k] = oldpos[k];
-               // Make sure the banknode is not lower than the node it
-               // originates from, bug fix 8/2003 QC. Causes ponds if the
-               // meander path is redirected over the newly added banknode in FlowDir
-               if( xyz[2] < cn->getZ()) xyz[2] = cn->getZ();
-               channode = *cn;//added node is copy of "mother" except
-               channode.set3DCoords( xyz[0], xyz[1], xyz[2] );//xyz
-               channode.setXYZD( zeroArr );//and xyzd and meander and drarea
-               channode.setMeanderStatus( kNonMeanderNode );
-               channode.setDrArea( 0.0 );
-               //TODO: NG Need to take care of deposit depth here
-               //I was thinking to leave a deposit of depth
-               //xyz[2]-cn->getZ() if this depth is positive
-               //The texture of this deposit would be
-               //the surface texture of cn.  Use erodep.
-               tLNode* nnPtr = meshPtr->AddNode( channode, kNoUpdateMesh, time );
-               if( nnPtr != NULL ){
-		          if(0)//DEBUG
-		             std::cout<<"ACB pt "<<nnPtr->getID()<<" added at "<<xyz[0]<<", "<<xyz[1]<<", "<<xyz[2]<<std::endl;
-		          change = true; //flag to update mesh
-               }
-               cn->setXYZD( zeroArr );
-            }
+         // The previous function call was MoveNodes on the mesh, which can remove
+         // some nodes without being able to update the reach nodes list. But the
+         // pointer of a deleted node still points to something, so let's check
+         // that the reach node actually exist in the mesh (dirty hack). GR
+         bool exist = false;
+         tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() ); // GR
+         for( tLNode* en = nodIter.FirstP(); !(nodIter.AtEnd());
+              en = nodIter.NextP() )
+             if( cn == en ) exist = true;
+         if( exist ){
+             tArray< double > oldpos = cn->getXYZD();
+             //select for nodes with old coords set:
+             if( oldpos[3] != 0.0 )
+             {
+                if (0) //DEBUG
+                    std::cout << "node " << cn->getID()
+                         << " ready to drop new node" << std::endl;
+                //just make sure new node will be in a triangle
+                tTriangle* ct = meshPtr->LocateTriangle( oldpos[0], oldpos[1] );
+                if( ct != NULL )
+                {
+                   //***NG: HERE IS WHERE YOU CAN FIND A DEPOSIT THICKNESS
+                   //TO ADD TO THE NEW NODE***
+                   channode.set3DCoords( oldpos[0], oldpos[1], oldpos[2] );
+                   tArray< double > xyz(3);
+                   for( int k=0; k<3; ++k ) xyz[k] = oldpos[k];
+                   // Make sure the banknode is not lower than the node it
+                   // originates from, bug fix 8/2003 QC. Causes ponds if the
+                   // meander path is redirected over the newly added banknode in FlowDir
+                   if( xyz[2] < cn->getZ()) xyz[2] = cn->getZ();
+                   channode = *cn;//added node is copy of "mother" except
+                   channode.set3DCoords( xyz[0], xyz[1], xyz[2] );//xyz
+                   channode.setXYZD( zeroArr );//and xyzd and meander and drarea
+                   channode.setMeanderStatus( kNonMeanderNode );
+                   channode.setDrArea( 0.0 );
+                   //TODO: NG Need to take care of deposit depth here
+                   //I was thinking to leave a deposit of depth
+                   //xyz[2]-cn->getZ() if this depth is positive
+                   //The texture of this deposit would be
+                   //the surface texture of cn.  Use erodep.
+                   tLNode* nnPtr = meshPtr->AddNode( channode, kNoUpdateMesh, time );
+                   if( nnPtr != NULL ){
+                      if(0)//DEBUG
+                         std::cout<<"ACB pt "<<nnPtr->getID()<<" added at "<<xyz[0]<<", "<<xyz[1]<<", "<<xyz[2]<<std::endl;
+                      change = true; //flag to update mesh
+                   }
+                   cn->setXYZD( zeroArr );
+                }
+             }
          }
       }
    }
    if( change )
    {
       meshPtr->UpdateMesh();
-      if (1){ //DEBUG
+      if (kDebug){ //DEBUG // GR
          if( time >= kBugTime ) std::cout << "added nodes(s), AddChanBorder finished"
                                      << std::endl;
       }
@@ -1493,7 +1510,7 @@ void tStreamMeander::ResetEffNbrCoords( tLNode *nPtr )
 tArray< double >
 tStreamMeander::FindBankErody( tLNode *nPtr ) const
 {
-   if (1) //DEBUG
+   if (kDebug) //DEBUG // GR
        std::cout << "FBE\n";
 
    tArray< double > lrerody(2);
@@ -1726,10 +1743,10 @@ void tStreamMeander::CheckBanksTooClose()
       // For each node on reach
       tPtrListIter< tLNode > rnIter( cr );   // iterator for nodes on reachrnIter.Reset( *cr );
       const int num = nrnodes[i];
-      int j;
+      // int j; // GR
       tLNode* cn;
-      for( cn = rnIter.FirstP(), j=0; j<num;
-           cn = rnIter.NextP(), j++ )
+      // for( cn = rnIter.FirstP(), j=0; j<num; cn = rnIter.NextP(), j++ ) // GR
+      for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() ) // GR
       {
          // Check neighboring nodes
          tSpkIter spokIter( cn );
@@ -1742,7 +1759,7 @@ void tStreamMeander::CheckBanksTooClose()
             {
                // If node isn't a boundary and isn't already on the
                // deletion list, put it on the deletion list now
-               if (0) //DEBUG
+               if (kDebug) //DEBUG // GR
                    std::cout<<"too close: cn, cn->hydrwidth "<<cn->getID()<<" "
                        <<cn->getHydrWidth()<<std::endl;
                tLNode* pointtodelete = static_cast<tLNode *>( ce->getDestinationPtrNC() );
@@ -1750,13 +1767,28 @@ void tStreamMeander::CheckBanksTooClose()
                {
                   if ( pointtodelete->getDrArea() < cn->getDrArea() )
                   {
+                     // The point to delete wasn't removed from the list of
+                     // reach nodes before, I don't know why it was working,
+                     // but just in case let's do it. GR
+                     if( rnIter.Prev() ){
+                        cr->removeNext( rnIter.NodePtr() ); // GR
+                     }
+                     else{
+                        cr->removeFromFront(); // GR
+                        rnIter.First(); // GR
+                     }
+                     // decrement number of reach nodes:
+                     --nrnodes[i]; // GR
+                     // unset "reachmember"
+                     pointtodelete->setReachMember(false); // GR
+
                      bool onlist = false;
                      for( tLNode* dn = dIter.FirstP(); !(dIter.AtEnd());
                           dn = dIter.NextP() )
                          if( pointtodelete == dn ) onlist = true;
                      if( !onlist )
                      {
-                        if (0) //DEBUG
+                        if (kDebug) //DEBUG // GR
                             std::cout << "add to delete list: "
                                  << pointtodelete->getID() << std::endl;
                         delPtrList.insertAtBack( pointtodelete );
@@ -1775,7 +1807,7 @@ void tStreamMeander::CheckBanksTooClose()
       {
          for( tLNode *dn = dIter.FirstP(); !(dIter.AtEnd()); dn = dIter.FirstP())
          {
-            if (0) //DEBUG
+            if (kDebug) //DEBUG // GR
                 std::cout << "CBTC: delete node " << dn->getID() << " at "
                      << dn->getX() << ", " << dn->getY() << std::endl;
             meshPtr->DeleteNode( dn, kRepairMesh, kNoUpdateMesh );
@@ -1843,8 +1875,9 @@ void tStreamMeander::CheckFlowedgCross()
          // For each node on reach
          tPtrListIter< tLNode > rnIter( cr );
          tLNode* cn;
-         int n;
-         for( cn = rnIter.FirstP(), n=0; n<nrnodes[k]; cn = rnIter.NextP(), ++n )
+         // int n; // GR
+         // for( cn = rnIter.FirstP(), n=0; n<nrnodes[k]; cn = rnIter.NextP(), ++n ) // GR
+         for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() )
          {
             int ft = 0;
             tLNode *pointtodelete = NULL;
@@ -1923,7 +1956,7 @@ void tStreamMeander::CheckFlowedgCross()
                   {
                      pointtodelete = cn;
                      if( rnIter.Prev() ){
-                        --n;
+                        // --n; // GR
                         cr->removeNext( rnIter.NodePtr() );
                      }
                      else{
@@ -2012,7 +2045,7 @@ void tStreamMeander::CheckFlowedgCross()
                   }
                }
             }
-            if (0) //DEBUG
+            if (kDebug) //DEBUG // GR
                 std::cout << "CFC: delete node " << dn->getID() << " at "
                      << dn->getX() << ", " << dn->getY() << std::endl;
             meshPtr->DeleteNode( dn, kRepairMesh, kNoUpdateMesh, true );
