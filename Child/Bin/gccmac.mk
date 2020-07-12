@@ -1,6 +1,6 @@
 # GNU compiler (mac OS X)
 
-CXX = g++
+CXX = g++-9
 #
 # -O is necessary for -Wuninitialized to be on
 # -Weffc++ -fmessage-length=0 gives useful but noisy warnings
@@ -18,10 +18,10 @@ WARNINGFLAGS += -Wold-style-cast
 # -mpowerpc64 etc: generates code for 64 bit G5 (power pc 970)
 # will not run on G3, G4, etc.
 #ARCH := -mcpu=G5 -mtune=G5 -mpowerpc64 -mpowerpc-gpopt
-ARCH :=
+ARCH := -mtune=native
 # optimise
-CFLAGS = $(WARNINGFLAGS) -g -O2 $(ARCH) -c
-LDFLAGS = $(WARNINGFLAGS) -g -O2 $(ARCH)
+CFLAGS = $(WARNINGFLAGS) -g -O3 $(ARCH) -c
+LDFLAGS = $(WARNINGFLAGS) -g -O3 $(ARCH)
 # no optimisation, build is faster
 #CFLAGS = $(WARNINGFLAGS) -g $(ARCH) -c
 #LDFLAGS = $(WARNINGFLAGS) -g $(ARCH)

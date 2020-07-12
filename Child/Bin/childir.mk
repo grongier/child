@@ -8,15 +8,15 @@ include gccmac.mk
 EXENAME = child$(EXEEXT)
 
 OBJECTS = \
- childRDriver.$(OBJEXT) \
- childRInterface.$(OBJEXT) erosion.$(OBJEXT) \
+ childDriver.$(OBJEXT) \
+ childInterface.$(OBJEXT) erosion.$(OBJEXT) \
  meshElements.$(OBJEXT) mathutil.$(OBJEXT) tIDGenerator.$(OBJEXT) \
  tInputFile.$(OBJEXT) tLNode.$(OBJEXT) tRunTimer.$(OBJEXT) \
  tStreamMeander.$(OBJEXT) meander.$(OBJEXT) \
  tStorm.$(OBJEXT) tStreamNet.$(OBJEXT) tUplift.$(OBJEXT) errors.$(OBJEXT) \
  tFloodplain.$(OBJEXT) tEolian.$(OBJEXT) globalFns.$(OBJEXT) \
  predicates.$(OBJEXT) tVegetation.$(OBJEXT) tListInputData.$(OBJEXT) \
- tStratGrid.$(OBJEXT) tOption.$(OBJEXT) \
+ tStratGrid.$(OBJEXT) tLithologyManager.$(OBJEXT) tOption.$(OBJEXT) \
  tTimeSeries.$(OBJEXT) ParamMesh_t.$(OBJEXT) TipperTriangulator.$(OBJEXT) \
  TipperTriangulatorError.$(OBJEXT) tWaterSedTracker.$(OBJEXT)
 
@@ -55,6 +55,9 @@ tRunTimer.$(OBJEXT): $(PT)/tRunTimer/tRunTimer.cpp
 
 tStorm.$(OBJEXT): $(PT)/tStorm/tStorm.cpp
 	$(CXX) $(CFLAGS) $(PT)/tStorm/tStorm.cpp
+
+tLithologyManager.$(OBJEXT):  $(PT)/tLithologyManager/tLithologyManager.cpp
+	$(CXX) $(CFLAGS) $(PT)/tLithologyManager/tLithologyManager.cpp
 
 tStratGrid.$(OBJEXT):  $(PT)/tStratGrid/tStratGrid.cpp
 	$(CXX) $(CFLAGS) $(PT)/tStratGrid/tStratGrid.cpp
@@ -104,11 +107,11 @@ tStreamMeander.$(OBJEXT): $(PT)/tStreamMeander/tStreamMeander.cpp
 meander.$(OBJEXT): $(PT)/tStreamMeander/meander.cpp
 	$(CXX) $(CFLAGS) $(PT)/tStreamMeander/meander.cpp
 
-childRInterface.$(OBJEXT): $(PT)/ChildRInterface/childRInterface.cpp
-	$(CXX) $(CFLAGS) $(PT)/ChildRInterface/childRInterface.cpp
+childInterface.$(OBJEXT): $(PT)/ChildInterface/childInterface.cpp
+	$(CXX) $(CFLAGS) $(PT)/ChildInterface/childInterface.cpp
 
-childRDriver.$(OBJEXT): $(PT)/ChildRInterface/childRDriver.cpp
-	$(CXX) $(CFLAGS) $(PT)/ChildRInterface/childRDriver.cpp
+childDriver.$(OBJEXT): $(PT)/ChildInterface/childDriver.cpp
+	$(CXX) $(CFLAGS) $(PT)/ChildInterface/childDriver.cpp
 
 clean::
 	rm -f $(EXENAME)
@@ -118,7 +121,7 @@ clean::
 # use, for instance:
 # find ${CHILDCODE} -name '*.h' | xargs grep -n -e include | grep '\.cpp'
 HFILES = \
-	$(PT)/ChildRInterface/childRInterface.h \
+	$(PT)/ChildInterface/childInterface.h \
 	$(PT)/Classes.h \
 	$(PT)/Definitions.h \
 	$(PT)/Erosion/erosion.h \
@@ -156,6 +159,7 @@ HFILES = \
 	$(PT)/tRunTimer/tRunTimer.h \
 	$(PT)/tStorm/tStorm.h \
 	$(PT)/tStratGrid/tStratGrid.h \
+	$(PT)/tLithologyManager/tLithologyManager.h \
 	$(PT)/tStreamMeander/meander.h \
 	$(PT)/tStreamMeander/tStreamMeander.h \
 	$(PT)/tStreamNet/tStreamNet.h \
@@ -186,6 +190,7 @@ tOption.$(OBJEXT): $(HFILES)
 tRunTimer.$(OBJEXT): $(HFILES)
 tStorm.$(OBJEXT) : $(HFILES)
 tStratGrid.$(OBJEXT) : $(HFILES)
+tLithologyManager.$(OBJEXT) : $(HFILES)
 tStreamMeander.$(OBJEXT): $(HFILES)
 tStreamNet.$(OBJEXT): $(HFILES)
 tTimeSeries.$(OBJEXT) : $(HFILES)

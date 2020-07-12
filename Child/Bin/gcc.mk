@@ -14,11 +14,11 @@ WARNINGFLAGS += -Wold-style-cast
 # -march=i686: generates code for pentiumpro and later
 # -march=pentium3: generates code for pentium III and later
 #ARCH := -march=pentium3
-ARCH := 
+ARCH := -mtune=native
 # optimise
 #PROFILE = -pg
-CFLAGS = $(WARNINGFLAGS) -g $(PROFILE) -O2 $(ARCH) -std=c++11 -c
-LDFLAGS = $(WARNINGFLAGS) -g $(PROFILE) -O2 $(ARCH)
+CFLAGS = $(WARNINGFLAGS) -g $(PROFILE) -O3 $(ARCH) -c
+LDFLAGS = $(WARNINGFLAGS) -g $(PROFILE) -O3 $(ARCH)
 # no optimisation, build is faster
 #CFLAGS = $(WARNINGFLAGS) -g $(ARCH) -c
 #LDFLAGS = $(WARNINGFLAGS) -g $(ARCH)
