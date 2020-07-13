@@ -1302,16 +1302,14 @@ void tStreamMeander::AddChanBorder(double time)
       // for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j ) // GR
       for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() )
       {
-
          // The previous function call was MoveNodes on the mesh, which can remove
          // some nodes without being able to update the reach nodes list. But the
          // pointer of a deleted node still points to something, so let's check
          // that the reach node actually exist in the mesh (dirty hack). GR
          bool exist = false;
          tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() ); // GR
-         for( tLNode* en = nodIter.FirstP(); !(nodIter.AtEnd());
-              en = nodIter.NextP() )
-             if( cn == en ) exist = true;
+         for( tLNode* en = nodIter.FirstP(); !(nodIter.AtEnd()); en = nodIter.NextP() )
+            if( cn == en ) exist = true;
          if( exist ){
              tArray< double > oldpos = cn->getXYZD();
              //select for nodes with old coords set:
@@ -1743,10 +1741,9 @@ void tStreamMeander::CheckBanksTooClose()
       // For each node on reach
       tPtrListIter< tLNode > rnIter( cr );   // iterator for nodes on reachrnIter.Reset( *cr );
       const int num = nrnodes[i];
-      // int j; // GR
+      int j;
       tLNode* cn;
-      // for( cn = rnIter.FirstP(), j=0; j<num; cn = rnIter.NextP(), j++ ) // GR
-      for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() ) // GR
+      for( cn = rnIter.FirstP(), j=0; j<num; cn = rnIter.NextP(), j++ )
       {
          // Check neighboring nodes
          tSpkIter spokIter( cn );
@@ -1767,21 +1764,6 @@ void tStreamMeander::CheckBanksTooClose()
                {
                   if ( pointtodelete->getDrArea() < cn->getDrArea() )
                   {
-                     // The point to delete wasn't removed from the list of
-                     // reach nodes before, I don't know why it was working,
-                     // but just in case let's do it. GR
-                     if( rnIter.Prev() ){
-                        cr->removeNext( rnIter.NodePtr() ); // GR
-                     }
-                     else{
-                        cr->removeFromFront(); // GR
-                        rnIter.First(); // GR
-                     }
-                     // decrement number of reach nodes:
-                     --nrnodes[i]; // GR
-                     // unset "reachmember"
-                     pointtodelete->setReachMember(false); // GR
-
                      bool onlist = false;
                      for( tLNode* dn = dIter.FirstP(); !(dIter.AtEnd());
                           dn = dIter.NextP() )
@@ -1875,9 +1857,8 @@ void tStreamMeander::CheckFlowedgCross()
          // For each node on reach
          tPtrListIter< tLNode > rnIter( cr );
          tLNode* cn;
-         // int n; // GR
-         // for( cn = rnIter.FirstP(), n=0; n<nrnodes[k]; cn = rnIter.NextP(), ++n ) // GR
-         for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() )
+         int n;
+         for( cn = rnIter.FirstP(), n=0; n<nrnodes[k]; cn = rnIter.NextP(), ++n )
          {
             int ft = 0;
             tLNode *pointtodelete = NULL;
@@ -1956,7 +1937,7 @@ void tStreamMeander::CheckFlowedgCross()
                   {
                      pointtodelete = cn;
                      if( rnIter.Prev() ){
-                        // --n; // GR
+                        --n;
                         cr->removeNext( rnIter.NodePtr() );
                      }
                      else{
