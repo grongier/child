@@ -4935,14 +4935,14 @@ AddNode( tSubNode &nodeRef, kUpdateMesh_t updatemesh, double time,
     return 0;
   if (kDebug) //DEBUG // GR
     std::cout << "call CheckTrianglesAt" << std::endl;
-  if( flip == kFlip &&  xyz.getSize() == 3 )
+  if( flip == kFlip && xyz.getSize() == 3 )
     CheckTrianglesAt( newNodePtr, time );
   
   //reset node id's
   ResetNodeIDIfNecessary();
   newNodePtr->InitializeNode();
   
-  if( updatemesh ==kUpdateMesh ) UpdateMesh();
+  if( updatemesh == kUpdateMesh ) UpdateMesh();
   return newNodePtr;  // Return ptr to new node
 }
 
@@ -5035,8 +5035,17 @@ MakeDelaunay( tPtrList< tTriangle > &triPtrList, double time )
               edgeToFlip : edgeToFlip->getComplementEdge();
               // Catch degenerate case where A flows to B and B flows to A.
               tEdge *otherEdge = flowEdgeToFlip->getComplementEdge();
-              if( otherEdge->getOriginPtr()->flowThrough( otherEdge ) )
-                ReportFatalError( "MakeDelaunay(): cycle in flow edge." );
+              if( otherEdge->getOriginPtr()->flowThrough( otherEdge ) ){
+                // I don't get how the Mesh can properly update the StreamNet
+                // after all the flips. In some cases, the connections returned
+                // by flowThrough don't make any sense and end up causing this
+                // degenerate case. It seems to me that this error check shouldn't
+                // be here, and the StreamNet should be properly updated instead
+                // (GR modified this 07/2020)
+                // ReportFatalError( "MakeDelaunay(): cycle in flow edge." );
+                if (kDebug) //DEBUG
+                  std::cerr << "MakeDelaunay(): cycle in flow edge." << std::endl;
+              }
             }
             // insert flow edge to flip if not there already
             tPtrListIter< tEdge > NonFlippableEdgeIter( NonFlippableEdge );

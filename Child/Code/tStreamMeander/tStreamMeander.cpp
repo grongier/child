@@ -434,23 +434,22 @@ int tStreamMeander::InterpChannel( double time )
 {
    const double timetrack = time;
    if (kDebug){//DEBUG // GR
-      if( timetrack >= kBugTime )
-          std::cout << "InterpChannel()\n";
+      if( timetrack >= kBugTime ) std::cout << "InterpChannel()\n";
    }
    const tArray< double > zeroArr(4);
-   double slope=0.;
+   double slope = 0.;
    bool change = false; //haven't added any nodes yet
    bool needmeshupdate = false;
    //loop through reaches:
    int i;
    tPtrList< tLNode > *creach;
-   for( creach = rlIter.FirstP(), i=0; !rlIter.AtEnd(); creach = rlIter.NextP(), i++ )
+   for( creach = rlIter.FirstP(), i = 0; !rlIter.AtEnd(); creach = rlIter.NextP(), ++i )
    {
       tPtrListIter< tLNode > rnIter( *creach );
       //loop through reach nodes:
       int j;
       tLNode *crn;
-      for( crn = rnIter.FirstP(), j=0; j<nrnodes[i]; crn = rnIter.NextP(), ++j )
+      for( crn = rnIter.FirstP(), j = 0; j<nrnodes[i]; crn = rnIter.NextP(), ++j )
       {
          tLNode *nPtr = crn->getDownstrmNbr();
          //mesh changes could make this wrong unless recalculated:
@@ -482,30 +481,30 @@ int tStreamMeander::InterpChannel( double time )
             // their being set indicates that meandering has been done
             // already at least once and this is not the first interpolation.
             const tArray< double > checkZOld = crn->getZOld();
-            if( ( checkZOld[0] != 0.0 || checkZOld[1] != 0.0 )
-                && bpn != NULL ){
+            if( ( checkZOld[0] != 0.0 || checkZOld[1] != 0.0 ) && bpn != NULL )
+            {
                // add node to block shortcut; also changes flow directions.
                tLNode* newnodeP = BlockShortcut( crn, bpn, nn, ic, time );
-               if( newnodeP != NULL ){
+               if( newnodeP != NULL )
+               {
                   change = true;
                   if (kDebug) //DEBUG // GR
                       std::cout<<"IC BS pt "<<newnodeP->getID()<<" added at "
                           << newnodeP->getX() << "," << newnodeP->getY() << std::endl;
                } else {
-		 if (kDebug) //DEBUG // GR
-		   std::cout<<"IC BS pt NOT added at "
-		       << ic[0] << "," << ic[1] << std::endl;
-		 // Process of aborting point addition may have left node(s)
-		 // without valid flowedges:
-		 netPtr->ReInitFlowDirs();
-		 // change = true; // GR commented it
+        		  if (kDebug) //DEBUG // GR
+        		     std::cout<<"IC BS pt NOT added at " << ic[0] << "," << ic[1] << std::endl;
+        		  // Process of aborting point addition may have left node(s)
+        		  // without valid flowedges:
+        		  netPtr->ReInitFlowDirs();
+        	      // change = true; // GR commented it
                }
-            }
-            else{
+            } else {
                const int numadd = ic.getSize() / 3;
                tLNode *prevNode = crn;
                tLNode* newnodeP = NULL;
-               for( int k=0; k<numadd; ++k ){
+               for( int k = 0; k < numadd; ++k )
+               {
                   nn.set3DCoords( ic[k*3+0], ic[k*3+1], ic[k*3+2] );
                   // set flow edge temporarily to zero, so that it is flippable
                   prevNode->setFlowEdgToZero();
@@ -515,35 +514,34 @@ int tStreamMeander::InterpChannel( double time )
                   if( newnodeP != NULL )
                   {
                      change = true;
-                      if (kDebug) //DEBUG // GR
-			std::cout<<"IC pt "<<newnodeP->getID()<<" added at "
-			    << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
-                    // previous node (prevNode) flows to new node (newnodeP)
+                     if (kDebug) //DEBUG // GR
+			            std::cout<<"IC pt "<<newnodeP->getID()<<" added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
+                     // previous node (prevNode) flows to new node (newnodeP)
                      prevNode->setDownstrmNbr( newnodeP );
                      // (check for rare case when nodes not connected)
                      if( prevNode->getFlowEdg() == NULL )
-                         meshPtr->ForceFlow( prevNode, newnodeP, time );
+                        meshPtr->ForceFlow( prevNode, newnodeP, time );
                      // Paranoia
                      assert( prevNode->getFlowEdg()->getDestinationPtr() == newnodeP );
                      prevNode = newnodeP;
                   } else {
-		    if (kDebug) //DEBUG // GR
-		      std::cout<<"IC pt NOT added at "
-			  << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
-		    // Process of aborting point addition may have left node(s)
-		    // without valid flowedges:
-		    netPtr->ReInitFlowDirs();
-		    // change = true; // GR commented it
+		             if (kDebug) //DEBUG // GR
+		                std::cout<<"IC pt NOT added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
+        		     // Process of aborting point addition may have left node(s)
+        		     // without valid flowedges:
+        		     netPtr->ReInitFlowDirs();
+        		     // change = true; // GR commented it
                   }
                }
                // after adding all new nodes, make last new node (newnodeP) flow to
                // the next meander node downstream (nPtr)
                prevNode->setDownstrmNbr( nPtr );
                // (check for rare case when nodes not connected)
-               if ( prevNode->getFlowEdg() == NULL ) {
-		 change = true;
-		 meshPtr->ForceFlow( prevNode, nPtr, time );
-	       }
+               if ( prevNode->getFlowEdg() == NULL )
+               {
+		          change = true;
+		          meshPtr->ForceFlow( prevNode, nPtr, time );
+	           }
                // Paranoia
                assert( newnodeP->getFlowEdg()->getDestinationPtr() == nPtr );
             }
@@ -551,11 +549,12 @@ int tStreamMeander::InterpChannel( double time )
       }
       if( slope < 0.0 ) break; //'change' has already been set to 1
    }
-   if( needmeshupdate )
-       meshPtr->UpdateMesh();
-   if( change )
-      netPtr->UpdateNet( time );
+
+   if( needmeshupdate ) meshPtr->UpdateMesh();
+   if( change ) netPtr->UpdateNet( time );
+
    return( ( change ) ? 1 : 0 );
+
 }//End InterpChannel
 
 /*****************************************************************************\
@@ -585,19 +584,19 @@ int tStreamMeander::InterpChannel( double time )
 
 void tStreamMeander::MakeReaches( double ctime)
 {
-  if (kDebug) //DEBUG // GR
-    std::cout<<"tStreamMeander::MakeReaches...";
-  netPtr->UpdateNet( ctime ); //first update the net
-  do
-    {
+   if (kDebug) //DEBUG // GR
+      std::cout<<"tStreamMeander::MakeReaches...";
+   netPtr->UpdateNet( ctime ); //first update the net
+   do
+   {
       FindMeander(); //if Q > Qcrit, meander = TRUE
       netPtr->FindChanGeom();//sets meander=false if slope <=0
       netPtr->FindHydrGeom();
       FindReaches(); //find reaches of meandering nodes
-    }
-  while( InterpChannel( ctime ) ); //updates
-  if (0) //DEBUG
-    std::cout<<"done MakeReaches"<<std::endl;
+   }
+   while( InterpChannel( ctime ) ); //updates
+   if (0) //DEBUG
+      std::cout<<"done MakeReaches"<<std::endl;
 }
 
 
@@ -1134,6 +1133,7 @@ void tStreamMeander::Migrate( double ctime )
    //NOTE: ctime and duration involve close subtraction of increasingly
    // large #'s -- shouldn't we just use the "true" duration? TODO
 
+   bool change = false;
    while( ctime < duration )
    {
       MakeReaches( ctime ); //updates net, makes reachList, interpolates
@@ -1148,9 +1148,15 @@ void tStreamMeander::Migrate( double ctime )
          CheckFlowedgCross(); //uses reachList
          meshPtr->MoveNodes( ctime ); //uses tMesh::nodeList
          AddChanBorder( ctime ); //uses reachList
+         change = true;
       }
       else ctime=duration; // If no reaches, end here (GT added 3/12/99)
    }
+   // If changes have been made to the mesh (especially by MoveNodes), the stream
+   // net isn't accurate anymore but is never updated outside of MakeReaches,
+   // which can cause problems down the road. So make sure to update it before
+   // leaving Migrate (GR added 07/2020)
+   if( change ) netPtr->UpdateNet( ctime );
    if (kDebug) //DEBUG // GR
        std::cout<<"end migrate"<<std::endl;
 }
@@ -1234,7 +1240,7 @@ void tStreamMeander::FindBankCoords( tLNode* cn, tArray< double >& posRef )
 \*****************************************************************************/
 void tStreamMeander::MakeChanBorder( )
 {
-   if (0) //DEBUG
+   if (kDebug) //DEBUG
        std::cout << "MakeChanBorder()" << std::endl;
    tPtrList< tLNode > *cr;
    int i;
@@ -1256,7 +1262,7 @@ void tStreamMeander::MakeChanBorder( )
          // set bank coords for dropping a new node
          if( cn->DistFromOldXY() >= width * ( 0.5 + leavefrac ) )
          {
-            if (0) //DEBUG
+            if (kDebug) //DEBUG
                 std::cout << "node " << cn->getID()
                      << " >= width from receding bank" << std::endl;
             tArray< double > oldpos = cn->getXYZD();
@@ -1291,16 +1297,14 @@ void tStreamMeander::AddChanBorder(double time)
    const tArray< double > zeroArr(4);
    tLNode channode;
 
-   // int i; // GR
+   int i;
    tPtrList< tLNode > *cr;
-   // for( cr = rlIter.FirstP(), i=0; !(rlIter.AtEnd()); cr = rlIter.NextP(), ++i ) // GR
-   for( cr = rlIter.FirstP(); !(rlIter.AtEnd()); cr = rlIter.NextP() )
+   for( cr = rlIter.FirstP(), i=0; !(rlIter.AtEnd()); cr = rlIter.NextP(), ++i )
    {
       tPtrListIter< tLNode > rnIter( *cr );
-      // int j; // GR
+      int j;
       tLNode* cn;
-      // for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j ) // GR
-      for( cn = rnIter.FirstP(); !(rnIter.AtEnd()); cn = rnIter.NextP() )
+      for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j )
       {
          // The previous function call was MoveNodes on the mesh, which can remove
          // some nodes without being able to update the reach nodes list. But the
@@ -1961,7 +1965,6 @@ void tStreamMeander::CheckFlowedgCross()
                      // 6/2003 SL: add to list of nodes to be deleted
                      // rather than delete right away:
                      bool onlist = false;
-
                      for( tLNode* dn = dIter.FirstP(); !(dIter.AtEnd()); dn = dIter.NextP() )
                          if( pointtodelete == dn ) onlist = true;
                      if( !onlist )

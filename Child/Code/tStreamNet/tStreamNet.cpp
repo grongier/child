@@ -1696,6 +1696,8 @@ void tStreamNet::RouteFlowArea( tLNode *curnode, double addedArea )
   {
     curnode->AddDrArea( addedArea );
     curnode = curnode->getDownstrmNbr();
+    if( curnode == 0 ) // GR
+       ReportFatalError( "Node doesn't point to a downstream node but isn't labeled as sink in RouteFlowArea." ); // GR
     //#if DEBUG
     niterations++;
     if( unlikely(niterations>9990) )
