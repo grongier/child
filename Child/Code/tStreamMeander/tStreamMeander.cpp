@@ -200,7 +200,7 @@ tStreamMeander::~tStreamMeander()
 **                    meander status flag based on a threshold discharge
 **
 **
-**		  Parameters: critflow
+**        Parameters: critflow
 **      Data members updated: tLNode->chan.migration.meander
 **      Called by: MakeReaches
 **      Calls: no "major" functions
@@ -221,7 +221,7 @@ void tStreamMeander::FindMeander()
     {
       //nmg
       if (0) //DEBUG
-	     std::cout<<"FM cn "<<cn->getID()<<" z = "<<cn->getZ()<<std::endl;
+         std::cout<<"FM cn "<<cn->getID()<<" z = "<<cn->getZ()<<std::endl;
       cn->setReachMember( false );
 #if FIXCRITFLOWBUG
       if( cn->getDrArea() >= critarea )
@@ -229,19 +229,19 @@ void tStreamMeander::FindMeander()
       if( cn->getQ() >= critflow )
 #endif
 #undef FIXCRITFLOWBUG
-	  {
-	     cn->setMeanderStatus( kMeanderNode );
-	     cn->setNew2DCoords( cn->getX(), cn->getY() );
-	  }
+      {
+         cn->setMeanderStatus( kMeanderNode );
+         cn->setNew2DCoords( cn->getX(), cn->getY() );
+      }
       else
-	  {
-	     if (0) {//DEBUG
-	        if( cn->Meanders() )
-	           std::cout << "FindMeander: node " << cn->getID() << " has Q " << cn->getQ() << " and A " << cn->getDrArea()
-		            << " and mndr is being switched off." << std::endl;
-	     }
-	     cn->setMeanderStatus( kNonMeanderNode );
-	   }
+      {
+         if (0) {//DEBUG
+            if( cn->Meanders() )
+               std::cout << "FindMeander: node " << cn->getID() << " has Q " << cn->getQ() << " and A " << cn->getDrArea()
+                    << " and mndr is being switched off." << std::endl;
+         }
+         cn->setMeanderStatus( kNonMeanderNode );
+       }
     }
   if (0) //DEBUG
     std::cout << "done\n";
@@ -301,14 +301,14 @@ tLNode* tStreamMeander::BlockShortcut( tLNode* crn, tLNode* bpn, tLNode& nn,
       bpn->setNew2DCoords( 0.0, 0.0 );
       bpn->AddDrArea( -crn->getDrArea() );
       crn->setDownstrmNbr( dn );
-	  if(kDebug) //DEBUG // GR
-	     std::cout<<"BlockShortcut: addition failed, un-meanderizing node "<<bpn->getID()<<std::endl;
+      if(kDebug) //DEBUG // GR
+         std::cout<<"BlockShortcut: addition failed, un-meanderizing node "<<bpn->getID()<<std::endl;
    }
    
    if(kDebug && newnodeP!=NULL) //DEBUG // GR
    {
       std::cout<<"BlockShortcut: added node "<<newnodeP->getID()<<" at "<<newnodeP->getX()<<","<<newnodeP->getY()
-	     <<","<<newnodeP->getZ()<<" crn="<<crn->getID()<<" bpn="<<bpn->getID()<<std::endl;
+         <<","<<newnodeP->getZ()<<" crn="<<crn->getID()<<" bpn="<<bpn->getID()<<std::endl;
    }
    
    return newnodeP;
@@ -409,8 +409,8 @@ const tArray< double > tStreamMeander::FindInterpCoords( tLNode* crn, tLNode* nP
 
 /****************************************************************\
 **
-**	InterpChannel: Fill in points between widely spaced
-**			channel nodes with noisy interpolation (i.e., don't make
+**  InterpChannel: Fill in points between widely spaced
+**          channel nodes with noisy interpolation (i.e., don't make
 **      perfectly straight lines). If only one point is added, it's
 **      added in between the two channel nodes, colinear except for
 **      a small random perturbation. If more than one node is added
@@ -423,10 +423,10 @@ const tArray< double > tStreamMeander::FindInterpCoords( tLNode* crn, tLNode* nP
 **      Uses reachList.
 **
 **
-**		Parameters: dscrtwids -- default spacing in # hydr widths
-**		Called by:  MakeReaches
+**      Parameters: dscrtwids -- default spacing in # hydr widths
+**      Called by:  MakeReaches
 **    Calls: tMesh::AddNode, tStreamNet::UpdateNet
-**		Created:  5/16/97 SL
+**      Created:  5/16/97 SL
 **    Updated: 1/98 SL
 **
 \****************************************************************/
@@ -492,12 +492,12 @@ int tStreamMeander::InterpChannel( double time )
                       std::cout<<"IC BS pt "<<newnodeP->getID()<<" added at "
                           << newnodeP->getX() << "," << newnodeP->getY() << std::endl;
                } else {
-        		  if (kDebug) //DEBUG // GR
-        		     std::cout<<"IC BS pt NOT added at " << ic[0] << "," << ic[1] << std::endl;
-        		  // Process of aborting point addition may have left node(s)
-        		  // without valid flowedges:
-        		  netPtr->ReInitFlowDirs();
-        	      // change = true; // GR commented it
+                  if (kDebug) //DEBUG // GR
+                     std::cout<<"IC BS pt NOT added at " << ic[0] << "," << ic[1] << std::endl;
+                  // Process of aborting point addition may have left node(s)
+                  // without valid flowedges:
+                  netPtr->ReInitFlowDirs();
+                  // change = true; // GR commented it
                }
             } else {
                const int numadd = ic.getSize() / 3;
@@ -515,7 +515,7 @@ int tStreamMeander::InterpChannel( double time )
                   {
                      change = true;
                      if (kDebug) //DEBUG // GR
-			            std::cout<<"IC pt "<<newnodeP->getID()<<" added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
+                        std::cout<<"IC pt "<<newnodeP->getID()<<" added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
                      // previous node (prevNode) flows to new node (newnodeP)
                      prevNode->setDownstrmNbr( newnodeP );
                      // (check for rare case when nodes not connected)
@@ -525,12 +525,12 @@ int tStreamMeander::InterpChannel( double time )
                      assert( prevNode->getFlowEdg()->getDestinationPtr() == newnodeP );
                      prevNode = newnodeP;
                   } else {
-		             if (kDebug) //DEBUG // GR
-		                std::cout<<"IC pt NOT added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
-        		     // Process of aborting point addition may have left node(s)
-        		     // without valid flowedges:
-        		     netPtr->ReInitFlowDirs();
-        		     // change = true; // GR commented it
+                     if (kDebug) //DEBUG // GR
+                        std::cout<<"IC pt NOT added at " << ic[k*3+0] << "," << ic[k*3+1] << std::endl;
+                     // Process of aborting point addition may have left node(s)
+                     // without valid flowedges:
+                     netPtr->ReInitFlowDirs();
+                     // change = true; // GR commented it
                   }
                }
                // after adding all new nodes, make last new node (newnodeP) flow to
@@ -539,9 +539,9 @@ int tStreamMeander::InterpChannel( double time )
                // (check for rare case when nodes not connected)
                if ( prevNode->getFlowEdg() == NULL )
                {
-		          change = true;
-		          meshPtr->ForceFlow( prevNode, nPtr, time );
-	           }
+                  change = true;
+                  meshPtr->ForceFlow( prevNode, nPtr, time );
+               }
                // Paranoia
                assert( newnodeP->getFlowEdg()->getDestinationPtr() == nPtr );
             }
@@ -834,10 +834,10 @@ void tStreamMeander::FindReaches()
 
 /***********************************************************************\
 **
-**	tStreamMeander::CalcMigration
+**  tStreamMeander::CalcMigration
 **
 **  This is the routine that makes the arrays to pass to the fortran
-**	routine 'meander_' and sets "new" x and y values;
+**  routine 'meander_' and sets "new" x and y values;
 **  makes a bunch of tArrays, and passes the arrays to
 **  fortran by way of the tArray member ptr, gotten
 **  with getArrayPtr().
@@ -849,19 +849,19 @@ void tStreamMeander::FindReaches()
 **  Rather, these coords are used to determine how far the
 **  meandering node has moved since it last dropped a node.
 **
-**		Parameters:	allowfrac -- fraction of chanwidth
-**				          a node is allowed to move in a
-**				          given meander iteration
-**				        duration -- storm duration,
+**      Parameters: allowfrac -- fraction of chanwidth
+**                        a node is allowed to move in a
+**                        given meander iteration
+**                      duration -- storm duration,
 **                  copy from netPtr->stormPtr->stdur
 **                time -- running tab on how long we've meandered
 **    NOTE: Nicole made a change so that time is now current time
 **          and duration = time at begining of migration call + stdur
 **          This shouldn't theoretically affect things, but be aware.
 **
-**		Called by:	Migrate
+**      Called by:  Migrate
 **    Calls: FindBankErody, external fortran routine _meander
-**		Created: 5/1/97  SL
+**      Created: 5/1/97  SL
 **    Modified: 11/03 SL, no longer sets "old" x and y.
 **
 \***************************************************************/
@@ -1007,7 +1007,7 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
 #define POINTBARFIX 1
 #if POINTBARFIX
             const double
-			    bankfullDepth = curnode->getChanDepth(),
+                bankfullDepth = curnode->getChanDepth(),
                 rz = curnode->getZ() + bankfullDepth * (1.0 - rdeptha[j]/deptha[j]),
                 lz = curnode->getZ() + bankfullDepth * (1.0 - ldeptha[j]/deptha[j]);
 #else
@@ -1020,8 +1020,8 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
             //lz = rz + deptha[j];
             dbg2 = dbg2 + (rdeptha[j]-ldeptha[j]);
             curnode->setZOld( rz, lz );
-			if(0) //DEBUG
-			   std::cout<<"CalcMigration: Flood depth "<<deptha[j]<<" Bank height above chan "<<rz-curnode->getZ()<<" "<<lz-curnode->getZ()<<std::endl;
+            if(0) //DEBUG
+               std::cout<<"CalcMigration: Flood depth "<<deptha[j]<<" Bank height above chan "<<rz-curnode->getZ()<<" "<<lz-curnode->getZ()<<std::endl;
          }
          if (0) //DEBUG
              std::cout << "MEAN rldepth " << dbg2 << std::endl;
@@ -1098,8 +1098,8 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
 **
 **  Migrate: The "master" meandering routine, it calls all of the
 **    routines which "do" the meandering
-**		Parameters: storm duration
-**		Called by: Main
+**      Parameters: storm duration
+**      Called by: Main
 **    Receives : ctime = current time
 **    Calls: MakeReaches--calls all routines necessary to make reaches
 **           CalcMigration--calls meander model, sets newx, newy
@@ -1113,7 +1113,7 @@ void tStreamMeander::CalcMigration( double &time, double const &duration,
 **           tMesh::MoveNodes--changes node coords, updates mesh
 **           AddChanBorder--"drops" nodes at old coords
 **
-**		Created: 1/98 SL
+**      Created: 1/98 SL
 **    Modified: 9/98 NG made so that time is passed to it.
 **             The time passed is now the time used in the while loop,
 **             and duration is set to duration + ctime.
@@ -1133,7 +1133,6 @@ void tStreamMeander::Migrate( double ctime )
    //NOTE: ctime and duration involve close subtraction of increasingly
    // large #'s -- shouldn't we just use the "true" duration? TODO
 
-   bool change = false;
    while( ctime < duration )
    {
       MakeReaches( ctime ); //updates net, makes reachList, interpolates
@@ -1147,16 +1146,14 @@ void tStreamMeander::Migrate( double ctime )
          CheckBanksTooClose(); //uses reachList
          CheckFlowedgCross(); //uses reachList
          meshPtr->MoveNodes( ctime ); //uses tMesh::nodeList
+         // Sometimes MoveNodes creates a mess in the stream net, which leads to
+         // various issues including aborts when AddChanBorder tries to add a new
+         // node (GR added 08/2020)
+         netPtr->UpdateNet( ctime );
          AddChanBorder( ctime ); //uses reachList
-         change = true;
       }
       else ctime=duration; // If no reaches, end here (GT added 3/12/99)
    }
-   // If changes have been made to the mesh (especially by MoveNodes), the stream
-   // net isn't accurate anymore but is never updated outside of MakeReaches,
-   // which can cause problems down the road. So make sure to update it before
-   // leaving Migrate (GR added 07/2020)
-   if( change ) netPtr->UpdateNet( ctime );
    if (kDebug) //DEBUG // GR
        std::cout<<"end migrate"<<std::endl;
 }
@@ -1165,9 +1162,9 @@ void tStreamMeander::Migrate( double ctime )
 **  tStreamMeander::FindBankCoords: Function cut from
 **    MakeChanBorder.
 **
-**		Parameters:
-**		Called by: MakeChanBorder
-**		Created: 9/2003 SL
+**      Parameters:
+**      Called by: MakeChanBorder
+**      Created: 9/2003 SL
 **
 \***************************************************************/
 void tStreamMeander::FindBankCoords( tLNode* cn, tArray< double >& posRef )
@@ -1276,7 +1273,7 @@ void tStreamMeander::MakeChanBorder( )
 
 /****************************************************************************\
 **
-**	tStreamMeander::AddChanBorder
+**  tStreamMeander::AddChanBorder
 **
 **  For meandering nodes with placement coords set, check whether
 **  a new node should be dropped. Checks to see whether 3D bank coords
@@ -1371,7 +1368,7 @@ void tStreamMeander::AddChanBorder(double time)
 
 /****************************************************************************\
 **
-**	tStreamMeander::ResetEffNbrCoords
+**  tStreamMeander::ResetEffNbrCoords
 **
 **  This function finds the weighted average of appropriate bank coordinates.
 **  Check all nbrs; find distances to perp. line. Find 2 pairs of
@@ -1383,8 +1380,8 @@ void tStreamMeander::AddChanBorder(double time)
 **        x1, x2 = x-coordinates of two pts; nbrx = effective x-coordinate
 **              nbrx = [x1 * (D - d1) + x2 * (D - d2)] / D
 **
-**		Called by: MakeChanBorder
-**		Created: 11/03 SL (modified from FindBankErody)
+**      Called by: MakeChanBorder
+**      Created: 11/03 SL (modified from FindBankErody)
 **
 \****************************************************************************/
 void tStreamMeander::ResetEffNbrCoords( tLNode *nPtr )
@@ -1480,10 +1477,10 @@ void tStreamMeander::ResetEffNbrCoords( tLNode *nPtr )
 
 /****************************************************************************\
 **
-**	tStreamMeander::FindBankErody
+**  tStreamMeander::FindBankErody
 **
 **  This is the routine that finds the effective erodibility of each bank
-**	based on a reach node's neighbor's erodibility
+**  based on a reach node's neighbor's erodibility
 **  and relative height above the channel.
 **  Check all nbrs; find distances to perp. line. Find 2 pairs of
 **  consecutive nbrs which fall on either side of line (going ccw from
@@ -1500,9 +1497,9 @@ void tStreamMeander::ResetEffNbrCoords( tLNode *nPtr )
 **        E1 = E1 * (Pdz * H / dz + (1 - Pdz)), dz >= H.
 **
 **
-**		Parameters:	tSurface::vegerody; tBedrock::erodibility
-**		Called by: CalcMigration
-**		Created: 5/1/97 SL
+**      Parameters: tSurface::vegerody; tBedrock::erodibility
+**      Called by: CalcMigration
+**      Created: 5/1/97 SL
 **    Modifications:
 **      - removed previous call to now-obsolete function getAlluvThickness.
 **        Erodibility now assumed constant and equal to rockerod. Should be
@@ -1632,9 +1629,9 @@ tStreamMeander::FindBankErody( tLNode *nPtr ) const
 **   migration would move it closer to the boundary (i.e., don't want to pin it
 **   next to the boundary if it's already there).
 **
-**		Parameters:
-**		Called by: Migrate
-**		Created: 5/98 SL
+**      Parameters:
+**      Called by: Migrate
+**      Created: 5/98 SL
 **
 **
 \*****************************************************************************/
@@ -1722,9 +1719,9 @@ void tStreamMeander::CheckBndyTooClose()
 **  channel segment defined by the meandering node and its
 **  downstream neighbor.
 **
-**		Parameters:
-**		Called by:
-**		Created: 1/98 SL
+**      Parameters:
+**      Called by:
+**      Created: 1/98 SL
 **
 \*****************************************************************************/
 void tStreamMeander::CheckBanksTooClose()
@@ -1826,9 +1823,9 @@ void tStreamMeander::CheckBanksTooClose()
 **           one or the other is indeed outside the boundary, o.w., exit w/err.
 **          -if the point to be deleted is not a boundary node, delete it.
 **
-**		Parameters:
-**		Called by:	Migrate
-**		Created: 1/98 SL; moved/modified from tMesh routine
+**      Parameters:
+**      Called by:  Migrate
+**      Created: 1/98 SL; moved/modified from tMesh routine
 **    Modified, 6/2003 SL: added list of nodes to delete, as in
 **      CheckBanksTooClose--was having problem with ending up "nowhere" in
 **      triList.
@@ -2050,10 +2047,10 @@ void tStreamMeander::CheckFlowedgCross()
 **   focii at up- and downstream nodes of channel segment,
 **   minor axis of one channel width.
 **
-**		Parameters:	mnode -- upstream meandering channel node
+**      Parameters: mnode -- upstream meandering channel node
 **                bnode -- the potential new bank node
-**		Called by:
-**		Created: 1/98 SL
+**      Called by:
+**      Created: 1/98 SL
 **    Modified:
 **     - 6/99 GT: changed from hydraulic width to channel,
 **       since we're interested in the morphological channel
@@ -2098,9 +2095,9 @@ int tStreamMeander::InChannel( tLNode *mnode, tLNode const *bnode )
 **  getUpstreamMeander: calls tLNode::getUpstrmNbr(), checks
 **    whether node returned by that function is meandering
 **
-**		Parameters:
-**		Called by:
-**		Created: 9/03 SL
+**      Parameters:
+**      Called by:
+**      Created: 9/03 SL
 **
 \***************************************************************/
 tLNode *tStreamMeander::getUpstreamMeander(tLNode *cn)
@@ -2111,12 +2108,12 @@ tLNode *tStreamMeander::getUpstreamMeander(tLNode *cn)
       if( upstreamnode != NULL ){
          if( !upstreamnode->Meanders() ){
             if (0) //DEBUG
-	      std::cout<<"upstream node non-meandering for node "<<cn->getID()<<std::endl;
+          std::cout<<"upstream node non-meandering for node "<<cn->getID()<<std::endl;
             upstreamnode = NULL;
          }
       }
       else if (0) //DEBUG
-	std::cout<<"no upstream node for node "<<cn->getID()<<std::endl;
+    std::cout<<"no upstream node for node "<<cn->getID()<<std::endl;
       return upstreamnode;
    }
    else return NULL;
@@ -2126,9 +2123,9 @@ tLNode *tStreamMeander::getUpstreamMeander(tLNode *cn)
 /****************************************************************\
  **
 **
-**		Parameters:
-**		Called by:
-**		Created: 1/98 SL
+**      Parameters:
+**      Called by:
+**      Created: 1/98 SL
 **
 \***************************************************************/
 

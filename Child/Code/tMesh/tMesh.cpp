@@ -600,7 +600,7 @@ MakeMeshFromInputData( const tInputFile &infile )
   ntri = input.p0.getSize();
   if (kDebug) //DEBUG // GR
     std::cout << "nnodes, nedges, ntri: "
-	  << nnodes << " " << nedges << " " << ntri << std::endl;
+      << nnodes << " " << nedges << " " << ntri << std::endl;
   assert( nnodes > 0 );
   assert( nedges > 0 );
   assert( ntri > 0 );
@@ -615,7 +615,7 @@ MakeMeshFromInputData( const tInputFile &infile )
     tempnode.set3DCoords( input.x[i], input.y[i], input.z[i] );
     miNextNodeID = i;
     tempnode.setID( miNextNodeID );
-	  tempnode.setPermID( node_ID_generator.getNextID() );
+      tempnode.setPermID( node_ID_generator.getNextID() );
     assert( input.boundflag[i] >= 0 && input.boundflag[i] <= 2 );
     tBoundary_t bound = IntToBound(input.boundflag[i]);
     tempnode.setBoundaryFlag( bound );
@@ -719,11 +719,11 @@ MakeMeshFromInputData( const tInputFile &infile )
       do
       {
         curnode = nodIter.DatPtr();
-				if(0) { // debug
-					std::cout << "current node's edg = " << curnode->getEdg() << std::endl;
-				  if( curnode->getEdg()!=0 ) std::cout << "this edg's ID = " << curnode->getEdg()->getID() << 
-				  " org id " << curnode->getEdg()->getOriginPtr()->getID() << std::endl;
-				}
+                if(0) { // debug
+                    std::cout << "current node's edg = " << curnode->getEdg() << std::endl;
+                  if( curnode->getEdg()!=0 ) std::cout << "this edg's ID = " << curnode->getEdg()->getID() << 
+                  " org id " << curnode->getEdg()->getOriginPtr()->getID() << std::endl;
+                }
         tSpkIter spkI( curnode );
         const int edgid1 = input.edgid[curnode->getID()];  //fix of above error
         spkI.insertAtBack(  EdgeTable[edgid1] );
@@ -1665,7 +1665,7 @@ MakePointInterior( const ParamMMFS_t &Param, const tInputFile &infile,
     tempnode.set3DCoords( Param.xout, Param.yout, 0. );
     tempnode.setID( miNextNodeID );
     miNextNodeID++;
-	  tempnode.setPermID( node_ID_generator.getNextID() );
+      tempnode.setPermID( node_ID_generator.getNextID() );
     if (makeMesh)
       AddNode( tempnode );
     else
@@ -1904,16 +1904,16 @@ MakeMeshFromPoints( const tInputFile &infile )
  **
  **   tMesh::MakeRandomPointsFromArcGrid
  **
- **		Routine to make irregular mesh from regular Arc grid by randomly
- **		sampling the grid such that the average resolution of the irregular
+ **     Routine to make irregular mesh from regular Arc grid by randomly
+ **     sampling the grid such that the average resolution of the irregular
  **    mesh is equal to that of the Arc grid.
  **
  **    Not quite random: before a node is added, it is checked for its
  **    proximity to existing nodes. If it is as close or closer than 1/10th
  **    the nominal discretization to an existing node, it is not added.
  **
- **		Designed to read from a grid containing points either within an
- **		already isolated basin or containing "no data".
+ **     Designed to read from a grid containing points either within an
+ **     already isolated basin or containing "no data".
  **
  **
  **
@@ -2128,12 +2128,12 @@ MakeRandomPointsFromArcGrid( const tInputFile &infile )
  **
  **   tMesh::MakeHexMeshFromArcGrid
  **
- **		Routine to make irregular mesh from regular Arc grid by randomly
- **		sampling the grid such that the average resolution of the irregular
+ **     Routine to make irregular mesh from regular Arc grid by randomly
+ **     sampling the grid such that the average resolution of the irregular
  **    mesh is equal to that of the Arc grid.
  **
- **		Designed to read from a grid containing points either within an
- **		already isolated basin or containing "no data".
+ **     Designed to read from a grid containing points either within an
+ **     already isolated basin or containing "no data".
  **
  **   IMPORTANT: Designed for use with an isolated subbasin--only makes
  **     one outlet (open boundary) node
@@ -2276,7 +2276,7 @@ MakeHexMeshFromArcGrid( const tInputFile &infile )
     y = ygen * delgrid + miny;
     tempnode.setID( miNextNodeID );
     miNextNodeID++;
-	  tempnode.setPermID( node_ID_generator.getNextID() );
+      tempnode.setPermID( node_ID_generator.getNextID() );
     tempnode.set3DCoords( x, y, zinterp );
     cn = AddNode( tempnode, /*updatemesh =*/ kNoUpdateMesh );
     if( zinterp != nodata && zinterp < minz )
@@ -2346,7 +2346,7 @@ MakeHexMeshFromArcGrid( const tInputFile &infile )
  **
  **  Designed to read from a point tiles, provided by NCALM, with UTM
  **  coords of grid containing points either within an
- **		already isolated basin or containing "no data".
+ **     already isolated basin or containing "no data".
  **
  **
  **
@@ -2446,11 +2446,11 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
         // so account for slop:
         if( Easting - 100 <= iMaxX && Easting + 1100 >= iMinX &&
            Northing - 100 <= iMaxY && Northing + 1100 >= iMinY )
-	      {
+          {
           std::stringstream ss;
           ss << tilePath << "f" << Easting << "_" << Northing << ".xyz";
           fileNames.insertAtBack( ss.str() );
-	      }
+          }
       }
   }
   else
@@ -2471,17 +2471,17 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
       if( InBoundsOnMaskedGrid( ( x ) / delgrid, 
                                ( y ) / delgrid, 
                                elev, nodata ) )
-	    {
-	      if( z < minz ) minz = z;
-	      xList.insertAtBack( x );
-	      yList.insertAtBack( y );
-	      zList.insertAtBack( z );
-	    }
+        {
+          if( z < minz ) minz = z;
+          xList.insertAtBack( x );
+          yList.insertAtBack( y );
+          zList.insertAtBack( z );
+        }
     } while( !tileFile.eof() );
     tileFile.close();
     std::cout << "\n finished reading tile file " 
-		<< tilePath
-		<< "; NN: " << nodeList.getSize() << "\n";
+        << tilePath
+        << "; NN: " << nodeList.getSize() << "\n";
   }
   std::cout << "finished reading points from tiles:";
   std::cout << "\n1 NN: " << xList.getSize() 
@@ -2543,17 +2543,17 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
         // make new open boundary node
         // don't like setting it to minz, so holler if this happens:
         const double zinterp = 
-	      InterpSquareGrid( ( x ) / delgrid, 
+          InterpSquareGrid( ( x ) / delgrid, 
                          ( y ) / delgrid, 
                          elev, nodata );
         if( zinterp > nodata )
           tempnode.set3DCoords( x, y, zinterp );
         else
-	      {
+          {
           std::cout << "Warning: added open boundary at minimum elev: "
           << "x " << x << ", y " << y << "\n";
           tempnode.set3DCoords( x, y, minz );
-	      }
+          }
         tempnode.setBoundaryFlag( kOpenBoundary );
         tempnode.setID( miNextNodeID++ );
         nodeList.insertAtBoundFront( tempnode );
@@ -2563,12 +2563,12 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
         << " (" << nodeList.getActiveSize() << ") NE: "
         << nedges << " NT: " << ntri << std::endl;
         if(0) // DEBUG
-	      {
+          {
           for( tSubNode *cn = nI.FirstP(); !nI.AtEnd(); 
               cn = nI.NextP() )
             if( cn->getZ() < minz ) 
               std::cout << "elev too low:" << cn->getZ() << "\n";
-	      }
+          }
       }
       // note: no break! and that's on purpose!
     case ParamMMFS_t::kAllSideClosed:
@@ -2627,8 +2627,8 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
       nnodes = nodeList.getSize();
       std::cout << "finished adding closed boundary nodes:";
       std::cout << "\n4 NN: " << nnodes 
-		  << " (" << nodeList.getActiveSize() << ") NE: "
-		  << nedges << " NT: " << ntri << std::endl;
+          << " (" << nodeList.getActiveSize() << ") NE: "
+          << nedges << " NT: " << ntri << std::endl;
       if(0) // DEBUG
       {
         for( tSubNode *cn = nI.FirstP(); !nI.AtEnd(); 
@@ -2640,10 +2640,10 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
       // call triangulator based on Tipper's method
       BuildDelaunayMeshTipper( kNoUpdateMesh );
       std::cout << "finished triangulation:";
-      // 	nnodes = nodeList.getSize();
+      //    nnodes = nodeList.getSize();
       std::cout << "\n5 NN: " << nnodes 
-		  << " (" << nodeList.getActiveSize() << ") NE: "
-		  << nedges << " NT: " << ntri << std::endl;
+          << " (" << nodeList.getActiveSize() << ") NE: "
+          << nedges << " NT: " << ntri << std::endl;
       if(0) // DEBUG
       {
         for( tSubNode *cn = nI.FirstP(); !nI.AtEnd(); 
@@ -2718,12 +2718,12 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
     for( tEdge* ce = eI.FirstP(); eI.IsActive(); ce = eI.NextP() )
     {
       if( ce->getLength() < mindist ) 
-	    {
-	      tSubNode* cn=0;
-	      tSubNode* on = static_cast<tSubNode*>( ce->getOriginPtrNC() );
-	      tSubNode* dn = static_cast<tSubNode*>( ce->getDestinationPtrNC() );
-	      // make sure neither end of ce is already on the list:
-	      if( !mI.Get( on ) && !mI.Get( dn ) )
+        {
+          tSubNode* cn=0;
+          tSubNode* on = static_cast<tSubNode*>( ce->getOriginPtrNC() );
+          tSubNode* dn = static_cast<tSubNode*>( ce->getDestinationPtrNC() );
+          // make sure neither end of ce is already on the list:
+          if( !mI.Get( on ) && !mI.Get( dn ) )
         { // remove node with shortest average spoke length, 
           // but not boundaries:
           if( on->getBoundaryFlag() == kOpenBoundary 
@@ -2751,7 +2751,7 @@ MakeMeshFromPointTilesAndArcGridMask( const tInputFile &infile, tRand &rand )
           removeList.insertAtBack( cn );
           keepChecking = true;
         }
-	    }
+        }
       eI.Next();
     }
     // delete nodes from mesh and repair it:
@@ -2885,27 +2885,27 @@ ConvertToOpenBoundary( nodeListNode_t *listNode )
       eI.Next();
       edgeListNode_t* nodePtr1 = eI.NodePtr();
       if( finalBound == tEdge::kFlowNotAllowed )
-	    { // non-boundary being converted open boundary,
-	      // move to front of boundary part of list:
-	      edgeList.moveToBoundFront( nodePtr1 );
-	      edgeList.moveToBoundFront( nodePtr0 );
-	    }
+        { // non-boundary being converted open boundary,
+          // move to front of boundary part of list:
+          edgeList.moveToBoundFront( nodePtr1 );
+          edgeList.moveToBoundFront( nodePtr0 );
+        }
       else
-	    { // closed boundary being converted to open boundary,
-	      // move to end of active part of list:
-	      edgeList.moveToActiveBack( nodePtr0 );
-	      edgeList.moveToActiveBack( nodePtr1 );
-	    }
+        { // closed boundary being converted to open boundary,
+          // move to end of active part of list:
+          edgeList.moveToActiveBack( nodePtr0 );
+          edgeList.moveToActiveBack( nodePtr1 );
+        }
       // reset boundary flags (must be done after moving in list):
       ce->setFlowAllowed( finalBound );
       ce->getComplementEdge()->setFlowAllowed( finalBound );
       if(kDebug) //DEBUG // GR
         if( edgeList.getLastActive()->getDataPtr()->FlowAllowed() 
            == tEdge::kFlowNotAllowed )
-	      {
+          {
           std::cout << "well, that's screwed up! \n";
           ReportFatalError( "last active edge went boundary on us!" );
-	      }
+          }
     }
   } while( ( ce = ce->getCCWEdg() ) != edg );
 }
@@ -3414,23 +3414,23 @@ void tMesh<tSubNode>::setVoronoiVertices()
  **  Data mbrs modified:  (none)
  **  Calls:  tEdge::CalcVEdgLen, tEdge::setVEdgLen
  **  Assumes:  complementary edges are stored pairwise on the edge list;
- **				Voronoi vertices are up to date
+ **             Voronoi vertices are up to date
  **  Notes:  replaces tNode::CalcSpokeVEdgLengths()
  **
  \**************************************************************************/
 template <class tSubNode>
 void tMesh<tSubNode>::CalcVoronoiEdgeLengths()
 {
-	tEdge *ce;
-	double vedglen;
-	edgeListIter_t edgIter( edgeList );
+    tEdge *ce;
+    double vedglen;
+    edgeListIter_t edgIter( edgeList );
   
-	for( ce=edgIter.FirstP(); edgIter.IsActive(); ce=edgIter.NextP() )
-	{
-		vedglen = ce->CalcVEdgLen();  // Compute Voronoi edge length
-		ce = edgIter.NextP();         // Advance to complement edge and
-		ce->setVEdgLen( vedglen );    //   and assign the same edge length.
-	}
+    for( ce=edgIter.FirstP(); edgIter.IsActive(); ce=edgIter.NextP() )
+    {
+        vedglen = ce->CalcVEdgLen();  // Compute Voronoi edge length
+        ce = edgIter.NextP();         // Advance to complement edge and
+        ce->setVEdgLen( vedglen );    //   and assign the same edge length.
+    }
 }
 
 
@@ -3544,7 +3544,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   if (kDebug) //DEBUG // GR
   {
     std::cout << "DeleteNode: " << node->getID() << " at " << node->getX() << " "
-	  << node->getY() << " " << node->getZ() << std::endl;
+      << node->getY() << " " << node->getZ() << std::endl;
     int nactive = 0, ntotalnodes = 0;
     nodeListIter_t nodIter( nodeList );
     for( nodIter.FirstP(); !nodIter.AtEnd(); nodIter.NextP() )
@@ -3610,7 +3610,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
     std::cout << "nn " << nnodes << "  ne " << nedges << "  nt " << ntri << std::endl;
     tPtrListIter< tSubNode > nbrIter( nbrList );
     std::cout << "leaving hole defined by \n"
-	  << "   Node  x  y " << std::endl;
+      << "   Node  x  y " << std::endl;
     for( nbrIter.First(); (!nbrIter.AtEnd()); nbrIter.Next() )
     {
       std::cout << "   " << nbrIter.DatPtr()->getID() << "     "
@@ -4363,19 +4363,19 @@ FixHoles()
       tNode* dn = bndyedg->getDestinationPtrNC();
       tPtrList< tSubNode > nbrList;
       do
-	    {
-	      tSubNode* sn = static_cast<tSubNode*>( dn );
-	      nbrList.insertAtBack( sn );
-	      bndyedg = bndyedg->getComplementEdge()->getCWEdg();
-	      dn = bndyedg->getDestinationPtrNC();
-	    } while( bndyedg != obedg );
+        {
+          tSubNode* sn = static_cast<tSubNode*>( dn );
+          nbrList.insertAtBack( sn );
+          bndyedg = bndyedg->getComplementEdge()->getCWEdg();
+          dn = bndyedg->getDestinationPtrNC();
+        } while( bndyedg != obedg );
       nbrList.makeCircular();
       // fix hole:
       if( !RepairMesh( nbrList ) )
-	    {
-	      cerr << "FixHoles: found hole but couldn't fix it\n";
-	      ReportFatalError( "tMesh::FixHoles failed" );
-	    }
+        {
+          cerr << "FixHoles: found hole but couldn't fix it\n";
+          ReportFatalError( "tMesh::FixHoles failed" );
+        }
     }
   }
   cout << endl;
@@ -4476,9 +4476,9 @@ AddEdge( tSubNode *node1, tSubNode *node2, tSubNode const *node3 )
   assert( node1 != 0 && node2 != 0 && node3 != 0 );
   if (kDebug) //DEBUG // GR
     std::cout << "AddEdge"
-	  << "between nodes " << node1->getID()
-	  << " and " << node2->getID() << " w/ ref to node "
-	  << node3->getID() << std::endl;
+      << "between nodes " << node1->getID()
+      << " and " << node2->getID() << " w/ ref to node "
+      << node3->getID() << std::endl;
   
   // error check
   const tArray< double > p0( node1->get2DCoords() ), p1( node2->get2DCoords() ),
@@ -4854,7 +4854,7 @@ MakeTriangle( tSubNode *cn, tSubNode *cnn, tSubNode *cnnn )
     // nbr (1,2,0). (ie, tri_number = (edg_number+1)%3 )
     if( nbrtriPtr != 0 )
     {
-     	int i;
+        int i;
       for( i=0; i<3; i++ )
       {
         assert( nbrtriPtr->ePtr(i) != 0 );
@@ -4918,7 +4918,7 @@ AddNode( tSubNode &nodeRef, kUpdateMesh_t updatemesh, double time,
   
   if (kDebug) //DEBUG // GR
     std::cout << "AddNode at " << xyz[0] << ", " << xyz[1]
-	  << ", " << xyz[2] << " time "<<time<<std::endl;
+      << ", " << xyz[2] << " time "<<time<<std::endl;
   
   // Assign ID to the new node and insert it at the back of either the active
   // portion of the node list (if it's not a boundary) or the boundary
@@ -5004,11 +5004,11 @@ MakeDelaunay( tPtrList< tTriangle > &triPtrList, double time )
     {
       // If a neighboring triangle exists across this face, check for flip
       if( at->tPtr(i) != 0 )
-	    {
-	      tTriangle *tp = at->tPtr(i);
-	      // Check triangle _at_ for a flip across face opposite vertex i,
-	      // and do the flip if needed
-	      switch( CheckForFlip( at, i, true ) ) {
+        {
+          tTriangle *tp = at->tPtr(i);
+          // Check triangle _at_ for a flip across face opposite vertex i,
+          // and do the flip if needed
+          switch( CheckForFlip( at, i, true ) ) {
           case FLIP_NOT_NEEDED:
             break;
           case FLIP_DONE:
@@ -5065,8 +5065,8 @@ MakeDelaunay( tPtrList< tTriangle > &triPtrList, double time )
             abort();
           case FLIP_ERROR:
             ReportFatalError( "MakeDelaunay(): error in CheckForFlip." );
-	      }
-	    }
+          }
+        }
     }
   out_of_for_loop: ;
   }
@@ -5416,7 +5416,7 @@ AddNodeAt( tArray< double > &xyz, double time )
 {
   if (0) //DEBUG
     std::cout << "AddNodeAt " << xyz[0] << ", " << xyz[1] << ", "
-	  << xyz[2] <<" time "<<time<< std::endl;
+      << xyz[2] <<" time "<<time<< std::endl;
   if (0) //DEBUG
     std::cout << "locate tri" << std::endl;
   tTriangle *tri;
@@ -6082,7 +6082,7 @@ CheckTriEdgeIntersect()
     //DEBUG-QC
     if (kDebug) //DEBUG // GR
       std::cout<<"CTI, adding node with x,y,z:"
-	    <<cn->getX()<<" "<<cn->getY()<<" "<<cn->getZ()<<std::endl;
+        <<cn->getX()<<" "<<cn->getY()<<" "<<cn->getZ()<<std::endl;
     
     cn = AddNode( *cn );
     assert( cn!=0 );
@@ -6696,9 +6696,9 @@ InterveningTriangles( tNode* un, tNode* dn ) const
  **       which will result in a call to tMesh::SplitNonFlippableEdge,
  **       which will interpolate the edge
  **
- **		Parameters:
- **		Called by: InterpChannel
- **		Created: 11/03 SL
+ **     Parameters:
+ **     Called by: InterpChannel
+ **     Created: 11/03 SL
  **
  \*****************************************************************************/
 template<class tSubNode>
