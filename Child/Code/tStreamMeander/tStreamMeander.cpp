@@ -1153,7 +1153,6 @@ void tStreamMeander::Migrate( double ctime )
       }
       else ctime=duration; // If no reaches, end here (GT added 3/12/99)
    }
-   netPtr->UpdateNet( ctime );
    if (kDebug) //DEBUG // GR
        std::cout<<"end migrate"<<std::endl;
 }
@@ -1294,54 +1293,64 @@ void tStreamMeander::AddChanBorder(double time)
    const tArray< double > zeroArr(4);
    tLNode channode;
 
-   // MoveNodes is called right before AddChanBorder, and sometimes it creates
-   // a mess in the stream net and reaches, which leads to various issues
-   // including segmentation faults when trying to access a deleted reach node
-   // and aborts when trying to add a new node. Thus, instead of looping through
-   // the reaches defined at the beginning of Migrate, loop through all the
-   // nodes (GR modified this 08/2020)
-   tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() );
-   tLNode* cn;
-   for( cn = nodIter.FirstP(); !(nodIter.AtEnd()); cn = nodIter.NextP() )
+   int i;
+   tPtrList< tLNode > *cr;
+   for( cr = rlIter.FirstP(), i=0; !(rlIter.AtEnd()); cr = rlIter.NextP(), ++i )
    {
-     tArray< double > oldpos = cn->getXYZD();
-     //select for nodes with old coords set:
-     if( oldpos[3] != 0.0 )
-     {
-        if (0) //DEBUG
-            std::cout << "node " << cn->getID()
-                 << " ready to drop new node" << std::endl;
-        //just make sure new node will be in a triangle
-        tTriangle* ct = meshPtr->LocateTriangle( oldpos[0], oldpos[1] );
-        if( ct != NULL )
-        {
-           //***NG: HERE IS WHERE YOU CAN FIND A DEPOSIT THICKNESS
-           //TO ADD TO THE NEW NODE***
-           channode.set3DCoords( oldpos[0], oldpos[1], oldpos[2] );
-           tArray< double > xyz(3);
-           for( int k=0; k<3; ++k ) xyz[k] = oldpos[k];
-           // Make sure the banknode is not lower than the node it
-           // originates from, bug fix 8/2003 QC. Causes ponds if the
-           // meander path is redirected over the newly added banknode in FlowDir
-           if( xyz[2] < cn->getZ()) xyz[2] = cn->getZ();
-           channode = *cn;//added node is copy of "mother" except
-           channode.set3DCoords( xyz[0], xyz[1], xyz[2] );//xyz
-           channode.setXYZD( zeroArr );//and xyzd and meander and drarea
-           channode.setMeanderStatus( kNonMeanderNode );
-           channode.setDrArea( 0.0 );
-           //TODO: NG Need to take care of deposit depth here
-           //I was thinking to leave a deposit of depth
-           //xyz[2]-cn->getZ() if this depth is positive
-           //The texture of this deposit would be
-           //the surface texture of cn.  Use erodep.
-           tLNode* nnPtr = meshPtr->AddNode( channode, kNoUpdateMesh, time );
-           if( nnPtr != NULL ){
-              if(0)//DEBUG
-                 std::cout<<"ACB pt "<<nnPtr->getID()<<" added at "<<xyz[0]<<", "<<xyz[1]<<", "<<xyz[2]<<std::endl;
-              change = true; //flag to update mesh
-           }
-           cn->setXYZD( zeroArr );
-        }
+      tPtrListIter< tLNode > rnIter( *cr );
+      int j;
+      tLNode* cn;
+      for( cn = rnIter.FirstP(), j=0; j<nrnodes[i]; cn = rnIter.NextP(), ++j )
+      {
+         // The previous function call was MoveNodes on the mesh, which can remove
+         // some nodes without being able to update the reach nodes list. But the
+         // pointer of a deleted node still points to something, so let's check
+         // that the reach node actually exist in the mesh (dirty hack). GR
+         bool exist = false;
+         tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() ); // GR
+         for( tLNode* en = nodIter.FirstP(); !(nodIter.AtEnd()); en = nodIter.NextP() )
+            if( cn == en ) exist = true;
+         if( exist ){
+             tArray< double > oldpos = cn->getXYZD();
+             //select for nodes with old coords set:
+             if( oldpos[3] != 0.0 )
+             {
+                if (0) //DEBUG
+                    std::cout << "node " << cn->getID()
+                         << " ready to drop new node" << std::endl;
+                //just make sure new node will be in a triangle
+                tTriangle* ct = meshPtr->LocateTriangle( oldpos[0], oldpos[1] );
+                if( ct != NULL )
+                {
+                   //***NG: HERE IS WHERE YOU CAN FIND A DEPOSIT THICKNESS
+                   //TO ADD TO THE NEW NODE***
+                   channode.set3DCoords( oldpos[0], oldpos[1], oldpos[2] );
+                   tArray< double > xyz(3);
+                   for( int k=0; k<3; ++k ) xyz[k] = oldpos[k];
+                   // Make sure the banknode is not lower than the node it
+                   // originates from, bug fix 8/2003 QC. Causes ponds if the
+                   // meander path is redirected over the newly added banknode in FlowDir
+                   if( xyz[2] < cn->getZ()) xyz[2] = cn->getZ();
+                   channode = *cn;//added node is copy of "mother" except
+                   channode.set3DCoords( xyz[0], xyz[1], xyz[2] );//xyz
+                   channode.setXYZD( zeroArr );//and xyzd and meander and drarea
+                   channode.setMeanderStatus( kNonMeanderNode );
+                   channode.setDrArea( 0.0 );
+                   //TODO: NG Need to take care of deposit depth here
+                   //I was thinking to leave a deposit of depth
+                   //xyz[2]-cn->getZ() if this depth is positive
+                   //The texture of this deposit would be
+                   //the surface texture of cn.  Use erodep.
+                   tLNode* nnPtr = meshPtr->AddNode( channode, kNoUpdateMesh, time );
+                   if( nnPtr != NULL ){
+                      if(0)//DEBUG
+                         std::cout<<"ACB pt "<<nnPtr->getID()<<" added at "<<xyz[0]<<", "<<xyz[1]<<", "<<xyz[2]<<std::endl;
+                      change = true; //flag to update mesh
+                   }
+                   cn->setXYZD( zeroArr );
+                }
+             }
+         }
       }
    }
    if( change )
