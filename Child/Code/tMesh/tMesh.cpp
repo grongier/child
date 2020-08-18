@@ -3532,7 +3532,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   tSubNode *node = nodPtr->getDataPtrNC();
   tBoundary_t deleted_node_boundary_status = node->getBoundaryFlag();
   
-#if 0
+#if kDebug
   // Quintijn & Arnaud's debug code
   if ( !allowMobileDeletion && /*node->isMobile()*/ node->Meanders() ) {
     std::cout << "YYYYYY DeleteNode()in tMesh: About to delete a Meandering node: "
@@ -5101,7 +5101,7 @@ SplitNonFlippableEdge( tPtrList< tEdge > &NonFlippableEdge, double time ){
     tNode *orig = edg->getOriginPtrNC();
     tNode *dest = edg->getDestinationPtrNC();
     
-    if (0) //DEBUG
+    if (kDebug) //DEBUG // GR
       std::cerr << "SplitNonFlippableEdge(): going to split flowedge for node "
       << orig->getID() << " and node "
       << dest->getID() << "." << std::endl;
@@ -5378,7 +5378,7 @@ AttachNode( tSubNode* cn, tTriangle* tri )
     {
       // may be trying to add a node in exact location of another node
       // return a NULL pointer before messing with triangulation
-      if(0) //DEBUG
+      if(kDebug) //DEBUG // GR
         std::cout << "node cannot be added at " << node2->getX() << ", "
         << node2->getY() << std::endl;
       return NULL;

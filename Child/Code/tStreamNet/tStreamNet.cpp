@@ -1217,7 +1217,7 @@ void tStreamNet::FlowDirs()
 #else
       if( curnode->Meanders() ){
 #endif
-      	// if the current node meeanders, check whether its current downstream neighbor also meanders
+      	// if the current node meanders, check whether its current downstream neighbor also meanders
       	// (should be..)
       	tLNode *NodeAlongEdge =
         static_cast<tLNode *>(firstedg->getDestinationPtrNC());
@@ -1357,7 +1357,7 @@ void tStreamNet::FlowDirs()
           } // end else if
           
         } // end if
-        else{ // all other cases, no menadering nodes involved
+        else{ // all other cases, no meandering nodes involved
           curnode->setFlowEdg( nbredg );
           selectslope = slp;
         }

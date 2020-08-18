@@ -69,8 +69,8 @@
 #include "tFloodplain.h"
 #include "../tListInputData/tListInputData.h"
 
-#define kDebug 1 // GR added this to control debugging
-#define kDisplay 1 // GR added this to control printing
+#define kDebug 0 // GR added this to control debugging
+#define kDisplay 0 // GR added this to control printing
 
 /**************************************************************************\
 **
