@@ -2499,13 +2499,13 @@ tArray<double> tLNode::addtoLayer(int i, double val)
 
   if(hlp->getDepth()+val>1e-7)
     {
-      // have enough material in this layer to fufill all erosion needs
+      // have enough material in this layer to fulfill all erosion needs
       const double amt=hlp->getDepth();
       size_t n=0;
       while(n<numg)
 	{
 	  ret[n]=hlp->getDgrade(n)*val/amt;
-	  hlp->addDgrade(n,hlp->getDgrade(n)*val/amt);
+	  hlp->addDgrade(n,hlp->getDgrade(n)*(val/amt)); // GR added parenthesis
 	  n++;
 	}
       return ret;

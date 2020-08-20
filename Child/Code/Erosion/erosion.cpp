@@ -6439,8 +6439,8 @@ void tErosion::ProduceRegolith( double dtg, double time )
           // (use low-level function):
           for( size_t j=0; j<n->getNumg(); ++j ) 
             rockP->addDgrade( j, 
-                             rockDeltaZ * rockP->getDgrade(j) 
-                             / rockP->getDepth() );
+                              rockP->getDgrade(j)
+                              * (rockDeltaZ / rockP->getDepth()) ); // GR added parenthesis
           // all erosion in this layer, so rockDeltaZ goes to zero:
           rockDeltaZ=0.0;
           // should I worry about removing very thin layers here?

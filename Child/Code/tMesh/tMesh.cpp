@@ -3532,7 +3532,7 @@ DeleteNode( nodeListNode_t *nodPtr, kRepairMesh_t repairFlag,
   tSubNode *node = nodPtr->getDataPtrNC();
   tBoundary_t deleted_node_boundary_status = node->getBoundaryFlag();
   
-#if kDebug
+#if 0
   // Quintijn & Arnaud's debug code
   if ( !allowMobileDeletion && /*node->isMobile()*/ node->Meanders() ) {
     std::cout << "YYYYYY DeleteNode()in tMesh: About to delete a Meandering node: "
