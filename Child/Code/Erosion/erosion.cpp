@@ -6191,7 +6191,15 @@ void tErosion::DiffuseNonlinearDepthDep( double rt, double time )
   tMesh< tLNode >::nodeListIter_t nodIter( meshPtr->getNodeList() );
   tMesh< tLNode >::edgeListIter_t edgIter( meshPtr->getEdgeList() );
   int numActiveEdges = meshPtr->getEdgeList()->getActiveSize();
-  int numEdges = meshPtr->getEdgeList()->getSize();
+  // When using the meandering mode, edges' ids can be higher than the number of
+  // edges because of node deletion, which can cause segmentation faults. This
+  // is a quick and probably dirty hack around it. (GR modified this 09/20)
+  // int numEdges = meshPtr->getEdgeList()->getSize();
+  int numEdges = 0;
+  for( ce=edgIter.FirstP(); edgIter.IsActive(); ce=edgIter.NextP() )
+  {
+    if( ce->getID() + 1 > numEdges ) numEdges = ce->getID() + 1;
+  }
   
   int k;      // Counter for edges
   double slopeRatio;   // Ratio of slope to critical slope

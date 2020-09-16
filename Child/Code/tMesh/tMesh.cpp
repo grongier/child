@@ -21,7 +21,7 @@
 
 #include "ParamMesh_t.h"
 
-#define kDebug 1 // GR added this to control debugging
+#define kDebug 0 // GR added this to control debugging
 
 /***************************************************************************\
  **  Templated global functions used by tMesh here

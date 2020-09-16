@@ -9,7 +9,7 @@
 
 #include "tStreamMeander.h"
 #define kBugTime 5000000
-#define kDebug 1 // GR added this to control debugging
+#define kDebug 0 // GR added this to control debugging
 
 #include "meander.h"
 
