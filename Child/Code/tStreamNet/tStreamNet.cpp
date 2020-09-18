@@ -3402,7 +3402,8 @@ meshPtr(gPtr)
     }
     else
     {
-      inletSlope = 0;
+      infile.ReadItem( inletSlope_ts, "INLET_SLOPE" );  // GR
+      inletSlope=inletSlope_ts.calc(0.);
       inletSedSizeFraction.setSize(0);
     }
     

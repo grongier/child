@@ -3568,6 +3568,7 @@ debris_flow_sed_bucket(0), debris_flow_wood_bucket(0)
   
   // Read parameters needed from input file
   num_grain_sizes_ = infile.ReadInt( "NUMG" );
+  optCalcSedFeed = infile.ReadItem( optCalcSedFeed, "INLET_OPTCALCSEDFEED" ); // GR added this 10/20
   infile.ReadItem( kd_ts, "KD" );  // Hillslope diffusivity coefficient
   kd = kd_ts.calc(0.);
   //kd = infile.ReadItem( kd, "KD" );  // Hillslope diffusivity coefficient
@@ -4789,17 +4790,8 @@ void tErosion::DetachErode(double dtg, tStreamNet *strmNet, double time,
     tArray <double> ret( cn->getNumg() ); //amt actually ero'd/dep'd
     tArray <double> erolist( cn->getNumg() );
     const tArray <double> sedzero( cn->getNumg() );
-    tArray <double> insed( strmNet->getInSedLoadm() );
-    tArray <double> inletBedSizeFraction( strmNet->getInletSedSizeFraction() );  // TEMP 6/06: stores desired bed sed proportions at inlet
-    // fractions must sum to 1 in input file (INSED1, INSED2, etc)
-    double inletSlope;	
-	    
-    //DEBUGGING 
-    if(0) {
-      std::cout<<"inletSlope = "<< inletSlope <<std::endl;
-      for( size_t i=0; i<cn->getNumg(); i++ )
-        std::cout<<"sedfrac "<<i<<"="<<inletBedSizeFraction[i]<<std::endl;
-    }
+    tArray <double> insed( strmNet->getInSedLoadm() );    
+    double inletSlope;
     
     // New stuff in progress for dynamic calculation of sed influx at inlet, 5/06
     // Here's what we need: modify tStreamNet to add a function that returns a ref or ptr to the inlet.
@@ -4824,91 +4816,89 @@ void tErosion::DetachErode(double dtg, tStreamNet *strmNet, double time,
         if(0 && cn==inletNode ) std::cout<<"top loop ID="<<cn->getID()<<std::endl;
         cn->setQs(0.0);
         if( cn!=inletNode )
-	      {
+	    {
           cn->setQsin(0.0); //totals are for ts calculation
           cn->setQsin( sedzero );
-          for( size_t i=0; i<cn->getNumg(); i++ ){
+          for( size_t i=0; i<cn->getNumg(); i++ ) {
             cn->setQs(i,0.0);
           }
-	      }
+	    }
         else  // TEMPORARY MODIFICATIONS FOR TEST, 5/06:  
-          // AND SET SLOPE TO A FIXED VALUE
-	      {
-          // We set the inlet node's erodibility values (for each layer) to zero so it can't be eroded.
-          // Also set the grain-size distribution in the upper layers to the values specified in the input 		// file by INSED1, 2, etc. Variable inletBedSizeFraction contains INSED1, 2, etc, which are
-          // assumed to be fractions that sum to 1.0 (the user can screw this up ... it isn't checked!)	
-        double inletSlope = strmNet->getInletSlope( time );
-		    if(0) {
-                std::cout<<"inletSlope = "<< inletSlope <<std::endl;
-                   }
-		  size_t numLayersInlet = cn->getNumLayer();
-          if(0) std::cout<<numLayersInlet<<" lay inlt\n";
-          for( size_t i=0; i<numLayersInlet; i++ ) {
-            cn->setLayerErody( i, 0.0 );
-            double layThick = cn->getLayerDepth(i);
-            for( size_t j=0; j<cn->getNumg(); j++ ) {
-              if(0) 
-                std::cout<<"set lay "<<i<<", with thickness " << layThick 
-                <<", size "<<j
-                <<" to "<< layThick*inletBedSizeFraction[j] << std::endl;
-              cn->setLayerDgrade(i,j,layThick*inletBedSizeFraction[j] );
+              // AND SET SLOPE TO A FIXED VALUE
+	    {
+          // Modified this to read Qsin directly from the inlet load when no
+          // inlet slope is used (GR, 10/20)
+          if(optCalcSedFeed == true)
+          {
+            tArray <double> inletBedSizeFraction(strmNet->getInletSedSizeFraction());  // TEMP 6/06: stores desired bed sed proportions at inlet
+            // fractions must sum to 1 in input file (INSED1, INSED2, etc)
+
+            //DEBUGGING 
+            if(0) {
+              std::cout<<"inletSlope = "<< inletSlope <<std::endl;
+              for( size_t i=0; i<cn->getNumg(); i++ )
+                std::cout<<"sedfrac "<<i<<"="<<inletBedSizeFraction[i]<<std::endl;
             }
-          }
-          
-          // zero out Qs for each size class
-          for( size_t i=0; i<cn->getNumg(); i++ ) {
-            cn->setQs(i,0.0);  
-          }
-          
-          // Now we adjust the elevation of the inlet node so that 
-          // it has the user-defined slope
-          double zdown = cn->getDownstrmNbr()->getZ(); //TEMP TEST
-          double len = cn->getFlowEdg()->getLength();   // TEMP TEST
-          
-          //Xdouble temporary_myslope = 0.05;  // Ultimately, read this from input file
-          cn->ChangeZ( (zdown+len * strmNet->getInletSlope( time ) )-cn->getZ() );
-          
-          // Next, we call TransCapacity, which automatically sets Qs in each size class
-          insedloadtotal = sedTrans->TransCapacity( cn, 0, 1.0 );
-          if(0) std::cout<<"inlet capacity="<<insedloadtotal<<std::endl;
-          
-          // Store Qs for each size class in the "insed" array so we can 
-          // assign these to Qsin
-          for( size_t i=0; i<cn->getNumg(); i++ ) {
-            insed[i] = cn->getQs(i);   // Capacity for i-th size fraction
-            if(0) std::cout<<" insed["<<i<<"]="<<insed[i]<<std::endl;
-          }
-          
-          // Now, we set the influxes at the inlet node, both total and per-size, 
-          //to the capacity values we just calculated and stored
-          cn->setQsin( insedloadtotal ); // here's the total influx
-          cn->setQsin( insed );  // ... and the per-size influx
-          
-          //double zdown = cn->getDownstrmNbr()->getZ(); //TEMP TEST
-          //double len = cn->getFlowEdg()->getLength();   // TEMP TEST
-          //double myslope = 0.025; //TEMP TEST
-          //tArray <double> testdz(cn->getNumg() );  //TEMP TEST
-          //double testdztotal = zdown+myslope*len - cn->getZ(); //TEMp TEST
-          //if( 1 ) std::cout<<"adj inlt "<<testdztotal;
-          //for( size_t kk=0; kk<cn->getNumg(); kk++ ) //TEMP TEST
-          //{
-          //  testdz[kk] = testdztotal*(insed[kk]/insedloadtotal ); //TEMP TEST
-          //std::cout<<" kk="<<kk<< "testdz="<<testdz[kk];
-          //}
-          //if( 1 ) std::cout<<std::endl;
-          //cn->EroDep( 0, testdz, timegb );  //TEMP TEST
-          //if( 1 ) std::cout<<"nl="<<cn->getNumLayer()<<" thick="<<cn->getLayerDepth(0)<<std::endl;
-          //cn->setLayerDepth( nl, 100000.0 ); //TEMP TEST
-          //cn->setLayerErody( 0, 1e6 ); //TEMP TEST
-          //cn->setLayerErody( 1, 1e6 ); //TEMP TEST
-          //if(1) std::cout << "inletnode elev " << cn->getZ() << " dsnbr " << zdown << " len " << len << " slp " << (cn->getZ()-zdown)/len << std::endl;
-          //for( size_t i=0; i<cn->getNumg(); i++ ){
-          //cn->setQs(i,0.0);
-          //cn->setLayerDgrade(0,i,cn->getLayerDepth(0)*(insed[i]/insedloadtotal) ); //TEMP TEST
-          //if( cn->getNumLayer()>1) cn->setLayerDgrade(1,i,cn->getLayerDepth(1)*(insed[i]/insedloadtotal) ); //TEMP TEST 
-          //std::cout << "inlet size " << i << "=" << cn->getLayerDgrade(0,i) << std::endl;
-          //}
+
+            // We set the inlet node's erodibility values (for each layer) to zero so it can't be eroded.
+            // Also set the grain-size distribution in the upper layers to the values specified in the input
+            // file by INSED1, 2, etc. Variable inletBedSizeFraction contains INSED1, 2, etc, which are
+            // assumed to be fractions that sum to 1.0 (the user can screw this up ... it isn't checked!)	
+            double inletSlope = strmNet->getInletSlope( time );
+    	    if(0) std::cout<<"inletSlope = "<< inletSlope <<std::endl;
+    	    size_t numLayersInlet = cn->getNumLayer();
+            if(0) std::cout<<numLayersInlet<<" lay inlt\n";
+            for( size_t i=0; i<numLayersInlet; i++ ) {
+              cn->setLayerErody( i, 0.0 );
+              double layThick = cn->getLayerDepth(i);
+              for( size_t j=0; j<cn->getNumg(); j++ ) {
+                if(0) 
+                  std::cout<<"set lay "<<i<<", with thickness " << layThick 
+                  <<", size "<<j
+                  <<" to "<< layThick*inletBedSizeFraction[j] << std::endl;
+                cn->setLayerDgrade(i,j,layThick*inletBedSizeFraction[j] );
+              }
+            }
+              
+            // zero out Qs for each size class
+            for( size_t i=0; i<cn->getNumg(); i++ ) {
+              cn->setQs(i,0.0);  
+            }
+              
+            // Now we adjust the elevation of the inlet node so that 
+            // it has the user-defined slope
+            double zdown = cn->getDownstrmNbr()->getZ(); //TEMP TEST
+            double len = cn->getFlowEdg()->getLength();   // TEMP TEST
+            cn->ChangeZ( (zdown+len * strmNet->getInletSlope( time ) )-cn->getZ() );
+            // Next, we call TransCapacity, which automatically sets Qs in each size class
+            insedloadtotal = sedTrans->TransCapacity( cn, 0, 1.0 );
+            if(0) std::cout<<"inlet capacity="<<insedloadtotal<<std::endl;
+            // Store Qs for each size class in the "insed" array so we can 
+            // assign these to Qsin
+            for( size_t i=0; i<cn->getNumg(); i++ ) {
+              insed[i] = cn->getQs(i);   // Capacity for i-th size fraction
+              if(0) std::cout<<" insed["<<i<<"]="<<insed[i]<<std::endl;
+            }
+              
+            // Now, we set the influxes at the inlet node, both total and per-size, 
+            //to the capacity values we just calculated and stored
+            cn->setQsin( insedloadtotal ); // here's the total influx
+            cn->setQsin( insed );  // ... and the per-size influx
 	      }
+          else
+          {
+            // zero out Qs for each size class and get the total sediment load
+            insedloadtotal = 0.;
+            for( size_t i=0; i<cn->getNumg(); i++ ) {
+              cn->setQs(i,0.0);
+              insedloadtotal += insed[i];   
+            }
+            // Now, we set the influxes at the inlet node, both total and per-size, 
+            //to the capacity values we just calculated and stored
+            cn->setQsin( insedloadtotal ); // here's the total influx
+            cn->setQsin( insed );  // ... and the per-size influx            
+          }
+        }
       }
       
       // Estimate erosion rates and time-step size

@@ -1311,6 +1311,7 @@ public:
     optDF_RunOutLaw,
     optDF_ScourLaw,
     optDF_DepositLaw;
+  int optCalcSedFeed;
 };
 
 inline void tErosion::setSoilBulkDensity( double val ) 
