@@ -497,16 +497,14 @@ void tLOutput<tSubNode>::WriteNodeData( double time )
   const int nActiveNodes = this->m->getNodeList()->getActiveSize(); // # active nodes
   const int nnodes = this->m->getNodeList()->getSize(); // total # nodes
 
+  // Modified extension for layers to fit the other outputs and still work when
+  // counter reaches 99 (GR, 09/2020)
+#define MY_EXT ".lay"
+  char ext[sizeof(MY_EXT)+10];  // name of file to be created
+
+  sprintf( ext, "%s%d", MY_EXT, counter );
+#undef MY_EXT
   if(OptLayOutput){
-    //taking care of layer and x,y,z file, since new one each time step
-    char ext[7];
-    strcpy( ext, ".lay");
-    if(counter<10)
-      strncat( ext, &nums[counter], 1);
-    else {
-      strncat(ext, &nums[counter/10], 1);
-      strncat(ext, &nums[static_cast<int>( fmod(static_cast<double>(counter),10.0) )], 1);
-    }
     this->CreateAndOpenFile( &layofs, ext );
   }
 
