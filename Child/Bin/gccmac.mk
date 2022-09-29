@@ -1,6 +1,6 @@
 # GNU compiler (mac OS X)
 
-CXX = g++-9
+CXX = g++
 #
 # -O is necessary for -Wuninitialized to be on
 # -Weffc++ -fmessage-length=0 gives useful but noisy warnings
