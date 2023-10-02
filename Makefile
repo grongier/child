@@ -1,22 +1,25 @@
 export BUILDOPT=prepare
 
-SRCDIR = src
-BINDIR = bin
+SRCDIR=src
+BINDIR=bin
 ifeq ($(OS),Windows_NT)
 	CC=x86_64-w64-mingw32-g++
+	SFLAG=-static -static-libgcc -static-libstdc++
     ifeq ($(BUILDOPT),prepare)
-	    BINDIR := $(BINDIR)/windows
+	    BINDIR:=$(BINDIR)/windows
     endif
 else
-    UNAME_S := $(shell uname -s)
+    UNAME_S:=$(shell uname -s)
     ifeq ($(UNAME_S),Linux)
     	CC=g++
+    	SFLAG=-static -static-libgcc -static-libstdc++
         ifeq ($(BUILDOPT),prepare)
-		    BINDIR := $(BINDIR)/linux
+		    BINDIR:=$(BINDIR)/linux
 	    endif
     endif
     ifeq ($(UNAME_S),Darwin)
     	CC=g++
+    	SFLAG=
         ifeq ($(BUILDOPT),prepare)
 		    BINDIR := $(BINDIR)/osx
 	    endif
@@ -123,7 +126,7 @@ $(BINDIR):
 	mkdir -p $@
 
 $(PROG): $(OBJS)
-	$(CC) -pedantic -Wall -W -Wwrite-strings -Wpointer-arith -Wcast-qual -Wcast-align -g -O3 -mtune=native $(addprefix $(BINDIR)/, $(OBJS)) -o $(BINDIR)/$@
+	$(CC) -pedantic -Wall -W -Wwrite-strings -Wpointer-arith -Wcast-qual -Wcast-align -g -O3 -mtune=native $(SFLAG) $(addprefix $(BINDIR)/, $(OBJS)) -o $(BINDIR)/$@
 	$(RM) $(addprefix $(BINDIR)/, $(OBJS))
 
 %.o: %.cpp $(HEADERS) $(SOURCES)
