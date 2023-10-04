@@ -12,7 +12,7 @@ You can then run CHILD using the following command line:
 
     child [input file]
 
-You can find some examples of input files in the folder [examples](examples). For more information, see the [user guide](doc/child_users_guide.pdf) in the folder [doc](doc).
+For more information about input files, see the [user guide](doc/child_users_guide.pdf) in the folder [doc](doc).
 
 ## Citation
 
