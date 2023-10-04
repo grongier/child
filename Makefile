@@ -1,4 +1,4 @@
-export BUILDOPT=prepare
+export BUILDOPT=build
 
 SRCDIR=src
 BINDIR=bin
