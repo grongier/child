@@ -1,6 +1,6 @@
 # CHILD: The Channel-Hillslope Integrated Landscape Development
 
-This fork of [CHILD](https://github.com/childmodel/child) was used in the work of Rongier & Peeters ([10.1029/2021WR030963](https://doi.org/10.1029/2021WR030963)) and includes some modifications to avoid crashes when using the stream meander module. It has a simplified organization and files that were unnecessary for this specific project have been removed, including the post-processing files. Post-processing was instead done using the Python package [pyrunchild](https://github.com/grongier/pyrunchild).
+This fork of [CHILD](https://github.com/childmodel/child) was used in the work of Rongier & Peeters ([10.1029/2021WR030963](https://doi.org/10.1029/2021WR030963)) and includes some modifications to limit crashes when using the stream meander module. It has a simplified organization and files that were unnecessary for this specific project have been removed, including the post-processing files. Post-processing was instead done using the Python package [pyrunchild](https://github.com/grongier/pyrunchild).
 
 ## Installation
 
